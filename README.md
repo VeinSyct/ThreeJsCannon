@@ -6,9 +6,11 @@ The **ThreeJsCannon** is a 3d browser game engine designed for mobile devices, i
 
 [Live Demo](https://virtucities.com/)
 
-The _3d browser game engine_ is designed to manage 3d assets to allow game levels to be played smoothly by loading the close proximity assets and unloading far objects from the player to ease the browser memory.
+[Itch.Io](https://veinsyct.itch.io/threejscannon-virtual-city)
 
-![dirt racer1](https://user-images.githubusercontent.com/106228791/235469681-59d6d1fc-6f82-4837-bd04-30a6182d10a9.jpg)
+[Source Code](https://sukinatin.web.app/merchandise.html?20230319190741&3D%20Browser%20Game%20Engine%20-%20Source%20Code&Source)
+
+The _3d browser game engine_ is designed to manage 3d assets to allow game levels to be played smoothly by loading the close proximity assets and unloading far objects from the player to ease the browser memory.
 
 The _3d browser game engine_ can be expanded to a _shooting game_, but in the meantime it features **non violence game rules**, such as _walking_, _running_, _waving_, _jumping_ and _driving_ vehicles.
 
