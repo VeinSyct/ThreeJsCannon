@@ -19,8 +19,11 @@ The _3d browser game engine_ is initially designed for city driving and social i
 The _3d browser game engine_ can be controlled with the following JavaScript files:
 
  ../engine/assets/js/**avatars.js**
+ 
  ../engine/assets/js/**levels.js**
+ 
  ../engine/assets/js/**vehicles.js**
+ 
  ../engine/assets/js/**rules.js**
  
  The **Avatar JS** - controls the avatar parameters, in the JavaScript file you can add custom made avatar that are rigged with Mixamo and add Ready Player Me avatars.
