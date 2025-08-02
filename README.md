@@ -4,7 +4,7 @@
 
 The **ThreeJsCannon** is a 3d browser game engine designed primarily for mobile devices, it can be used as well on desktop for high quality 3d assets, but in the main time this source code is for mobile devices such tablets and mobile phones with touch screen and internet browsers.
 
-[Live Demo](https://virtucities.web.app)
+[Live Demo]([https://virtucities.web.app](https://theneoverse.web.app/#threeviewer&&crateria))
 
 [Itch.Io](https://veinsyct.itch.io/threejscannon-virtual-city)
 
