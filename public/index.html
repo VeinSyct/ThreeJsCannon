@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="eng">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Full Screen">
+    <meta name="HandheldFriendly" content="true">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover,shrink-to-fit=no">
+    <meta name="pinterest" content="nopin">
+    <meta name="referrer" content="origin">
+    <meta name="author" content="VeinSyct">
+    <!-- Locale -->
+    <meta name="description" content="RealVerse is a #RealHolmes project that allows guest to explore properties in virtual experience.">
+    <meta name="keywords" content="#Metaverse,#Game,#JavaScript,#Threejs,#Cannonjs,#WebGL,#WebAR">
+    <meta name="author" content="VeinSyct">
+    <meta name="application-name" content="#RealVerse">
+    <meta name="robots" content="follow, index, max-snippet:-1, max-video-preview:-1, max-image-preview:large">
+    <link rel="profile" href="https://realtours.web.app">
+    <link rel="pingback" href="https://realtours.web.app">
+    <link rel="canonical" href="https://realtours.web.app">
+    <link rel="next" href="https://realtours.web.app">
+    <!-- Online -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="#RealVerse">
+    <meta property="og:description" content="RealVerse is a #RealHolmes project that allows guest to explore properties in virtual experience.">
+    <meta property="og:url" content="https://realtours.web.app">
+    <meta property="og:site_name" content="#RealVerse">
+    <meta property="og:image" content="assets/images/externaledgeapartment.jpg">
+    <meta property="og:image:secure_url" content="assets/images/externaledgeapartment.jpg">
+    <meta property="og:image:width" content="128">
+    <meta property="og:image:height" content="128">
+    <meta property="og:image:alt" content="assets/images/externaledgeapartment.jpg">
+    <meta property="og:image:type" content="image/jpeg/png">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="#RealVerse">
+    <meta name="twitter:description" content="RealVerse is a #RealHolmes project that allows guest to explore properties in virtual experience.">
+    <meta name="twitter:image" content="assets/images/externaledgeapartment.jpg">
+    <!-- Title -->
+    <link rel="shortcut icon" type="image/x-icon" href="assets/images/favicon.png">
+    <title>RealVerse</title>
+    <script type="module">
+      import{realverse}from'./assets/js/realverse.js'
+
+      let engine=new realverse()
+
+      window.initEngine=function(){
+        if(engine.create({id:'canvas-window',url:'https://realengine.web.app'})){
+          engine.load({id:'canvas-window',url:'https://realengine.web.app',assets:[
+            {
+              name:'https://firebasestorage.googleapis.com/v0/b/virtual-55d5e.appspot.com/o/REALVERSEASSETS%2Fedgeapartmentbody.glb?alt=media&token=2c963e45-210f-45b0-afbf-b11514c93eda',
+              type:'trimesh',loader:'glb',
+              x:[0],y:[0],z:[0],o:[{x:0,y:0,z:0}],s:[1000],kg:[0],ds:120
+            },
+            {
+              name:'https://firebasestorage.googleapis.com/v0/b/virtual-55d5e.appspot.com/o/REALVERSEASSETS%2Fedgeapartment.glb?alt=media&token=d26fff38-4ea1-4517-b2b5-93cdc8ea58c7',
+              type:'objectmesh',loader:'glb',
+              x:[0],y:[0],z:[0],o:[{x:0,y:0,z:0}],s:[1000],kg:[0],ds:120,select:'navigatable'
+            }
+          ],origin:{
+            spawn:[
+              {x:3,y:0,z:0,o:-90,s:.3}
+            ],
+            respawn:[
+              {x:0,y:0,z:0,o:0,s:.5,cost:'10-500'}
+            ]
+          },delay:2400})
+        }else console.log('No internet!')
+      }
+      document.addEventListener("DOMContentLoaded",function(){
+        initEngine()
+      })
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
