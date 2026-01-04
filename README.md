@@ -7,7 +7,15 @@
 **3Design Concepts Engine** is a **real-time 3D browser-based simulation engine** built with **Three.js** and **Cannon.js**, designed for **architectural visualization, urban exploration, and spatial interaction**.  
 It is optimized for **mobile devices** while maintaining high-quality rendering on desktop browsers.
 
-The engine transforms architectural models into **walkable, drivable, and explorable environments**, enabling designers and students to experience space at **human scale**—directly in the web browser.
+The engine transforms architectural models into **walkable, drivable, and explorable environments**, enabling designers and students to experience space at **human scale** directly in the web browser.
+
+<img width="1255" height="909" alt="Screenshot 2026-01-04 035736" src="https://github.com/user-attachments/assets/05332546-7db2-4c36-8ff8-49256837fc33" />
+you can load GLB files directly in the browser, including levels, characters, and vehicle models, which makes quick prototyping and experimentation much easier.
+
+to show the drag & drop modal click “construct” button:
+<img width="120" height="90" alt="image" src="https://github.com/user-attachments/assets/db729563-db01-4773-9ee4-9c17b925bfac" />
+
+use the test assets
 
 ---
 
