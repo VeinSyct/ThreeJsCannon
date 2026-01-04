@@ -13,6 +13,8 @@ The engine transforms architectural models into **walkable, drivable, and explor
 
 you can load GLB files directly in the browser, including levels, characters, and vehicle models, which makes quick prototyping and experimentation much easier.
 
+<iframe width="1255" height="909" src="https://www.youtube.com/embed/0TZ3F1haDA0?si=MTkFhmP1YKtS1ibF" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 to show the drag & drop modal click “construct” button:
 
 <img width="120" height="90" alt="image" src="https://github.com/user-attachments/assets/db729563-db01-4773-9ee4-9c17b925bfac" />
