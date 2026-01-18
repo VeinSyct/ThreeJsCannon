@@ -1,0 +1,2199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="HandheldFriendly" content="true">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover,shrink-to-fit=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Full Screen">
+    <meta name="pinterest" content="nopin">
+    <meta name="referrer" content="origin">
+    <meta property="og:description" content="Virtual world engine is a game engine">
+    <meta property="og:title" content="Virtual World Engine">
+    <meta property="og:image" content="assets/images/welcome.png">
+    <meta property="og:type" content="webapp">
+    <meta name="description" content="Virtual world engine is a game engine">
+    <meta name="keywords" content="virtual,world,game,engine">
+    <meta name="author" content="VeinSyct">
+    <meta name="application-name" content="Virtual World Engine">
+    <link rel="shortcut icon" type="image/x-icon" href="assets/images/favicon.png">
+    <title>Virtual World Engine</title>
+    <base href="">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!--Firebase-->
+    <script src="assets/js/vemethods.js"></script>
+    <!--Dependencies-->
+    <script src="assets/js/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/stickcontrol.js"></script>
+    <script type="text/javascript">
+      var loadJS=false
+      document.onreadystatechange=()=>{
+        // Start engine
+        if(document.readyState==='complete'&&!loadJS){
+          haltF=loadJS=true
+          setTimeout(function(){if(haltF)history.back()},10000)
+          $('#welcome').fadeOut('fast')
+          $('#loadingBar').fadeIn('slow')
+          $('#loadingFill').css('width','1%')
+          if('serviceWorker' in navigator){
+            navigator.serviceWorker
+            .register('serviceworker.js')
+            .then(function(registration){
+              $('#loadingFill').css('width','3%')
+            })
+            .catch((err)=>{
+              $('#loadingFill').css('width','0%')
+            })
+          }
+          getOrientation()
+          try{
+            if(isMobile)meAndF=AppInterface.isAndroid()
+          }catch(err){}
+          if(meAndF)$('#loadMyObject').hide()
+          for(i=0;i<uiAssets.length;i++)loadScript(uiAssets[i],'head','text/javascript')
+          loadScript('assets/js/engine.js','head','module')
+          $('#loadingFill').css('width','5%')
+          setTimeout(function(){
+            $('#loadingFill').css('width','8%')
+            try{
+              userUID()
+              setTimeout(function(){
+                $('#loadingFill').css('width','10%')
+                if(isURL()){
+                  playerParameters=engineParameters.url
+                  if(playerParameters.uid!==undefined)myUserID.uid=playerParameters.uid
+                  $('body').css('background-image','url(../assets/images/'+playerParameters.levelName+'.jpg),url(assets/images/background.jpg)')
+                  try{
+                    startApp()
+                    haltF=false
+                  }catch(err){
+                    if(err.message.match(/(startApp)/))setTimeout(function(){history.back()},15000)
+                  }
+                }
+              },600)
+            }catch(err){}
+          },600)
+        }
+      }
+      $(document).ready(function(){
+        // Engine initialize
+      })
+      document.addEventListener("DOMContentLoaded",function(){
+        // System routines
+      })
+    </script>
+  </head>
+  <body style="margin:0px;background-image:url(assets/images/background.jpg)">
+    <div class="appWindow">
+      <div hidden id="world"></div>
+      <img src="assets/images/welcome.png" onerror="$('#welcome').hide()" style="opacity:.5" id="welcome"/>
+      <div hidden class="progressBar" id="loadingBar">
+        <div class="progressFill" id="loadingFill">
+          <div class="progressText" id="progressText">Initiating...</div>
+        </div>
+      </div>
+      <div hidden id="dialogWindow">
+        <div class="container" style="z-index:1">
+          <div class="dialogcontainer">
+            <div class="dialogbox">
+              <div id="closeDialog">
+                <img src="assets/images/closeDialog.png"
+                ontouchstart="closeDialog(this,true)"
+                ontouchend="closeDialog(this,false)"
+                onmousedown="if(!isMobile)closeDialog(this,true)"
+                onmouseup="if(!isMobile)closeDialog(this,false)"
+                style="opacity:.86"/>
+              </div>
+              <div>
+                <img style="margin-left:9px;opacity:.86"/ onerror="$(this).hide()" id="dialogIcon">
+                <p class="dialogMessage" id="dialogMessage"></p>
+              </div>
+              <span id="dialogButton"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div hidden style="position:absolute" id="loudICON">
+        <img src="assets/images/loud.png" style="max-width:70vw;opacity:.86"/>
+      </div>
+      <span hidden style="position:absolute;font-size:5vh;text-align:center;opacity:.86" id="centerMessage"></span>
+      <div hidden style="position:absolute" id="screenTarget">
+        <img src="assets/images/screentarget.png" style="height:36px"/>
+      </div>
+      <div hidden style="position:absolute;bottom:9px" id="takeSnap">
+        <img src="assets/images/stickcontrolball.png"
+        ontouchstart="takeSnap(this,true,true)"
+        ontouchend="takeSnap(this,false,true)"
+        onmousedown="if(!isMobile)takeSnap(this,true,true)"
+        onmouseup="if(!isMobile)takeSnap(this,false,true)"
+        style="opacity:.86"/>
+      </div>
+      <span id="worldControls">
+        <div hidden id="noVRICON">
+          <img class="topLeftIcon" src="assets/images/backOUT.png"
+          ontouchstart="backOUT(this,true)"
+          ontouchend="backOUT(this,false)"
+          onmousedown="if(!isMobile)backOUT(this,true)"
+          onmouseup="if(!isMobile)backOUT(this,false)"
+          style="opacity:.86"/>
+          <img class="topRightIcon" src="assets/images/noVR.png"
+          ontouchstart="noVR(this,true)"
+          ontouchend="noVR(this,false)"
+          onmousedown="if(!isMobile)noVR(this,true)"
+          onmouseup="if(!isMobile)noVR(this,false)"
+          style="opacity:.86"/>
+        </div>
+        <div hidden class="actionLeftIcon" id="driveVehicle">
+          <img src="assets/images/driveVehicle.png"
+          ontouchstart="driveVehicle(this,true)"
+          ontouchend="driveVehicle(this,false)"
+          onmousedown="if(!isMobile)driveVehicle(this,true)"
+          onmouseup="if(!isMobile)driveVehicle(this,false)"
+          style="opacity:.86"/>
+        </div>
+        <div hidden class="actionRightIconB" id="payIT">
+          <div style="margin-left:-3px;font-size:18px;opacity:.76">
+            υς<span style="font-size:14px" id="objectPrice"></span>
+          </div>
+          <img src="assets/images/payIT.png"
+          ontouchstart="payIT(this,true)"
+          ontouchend="payIT(this,false)"
+          onmousedown="if(!isMobile)payIT(this,true)"
+          onmouseup="if(!isMobile)payIT(this,false)"
+          style="opacity:.86"/>
+        </div>
+        <div hidden class="actionRightIconA" id="takeIT">
+          <div style="margin-left:-3px;font-size:18px;opacity:.76">
+            υς<span style="font-size:14px" id="objectReward"></span>
+          </div>
+          <img src="assets/images/takeIT.png"
+          ontouchstart="takeIT(this,true)"
+          ontouchend="takeIT(this,false)"
+          onmousedown="if(!isMobile)takeIT(this,true)"
+          onmouseup="if(!isMobile)takeIT(this,false)"
+          style="opacity:.86"/>
+        </div>
+        <div hidden id="optionWindow">
+          <div class="container">
+            <div class="topLeftIcon">
+              <img src="assets/images/backOUT.png"
+              ontouchstart="backOUT(this,true)"
+              ontouchend="backOUT(this,false)"
+              onmousedown="if(!isMobile)backOUT(this,true)"
+              onmouseup="if(!isMobile)backOUT(this,false)"
+              style="opacity:.86"/>
+            </div>
+            <div hidden id="avatarLibrary">
+              <div class="dialogcontainer">
+                <span style="text-align:center;font-size:24px">Chose Your Avatar</span>
+                <div class="dialogbox" style="overflow-x:scroll" id="avatarList"></div>
+                <span style="text-align:center;font-size:16px">Or</span>
+                <div class="dialogbox">
+                  <img src="assets/images/avatarLink.png"
+                  ontouchend="avatarURLS()"
+                  onmouseup="if(!isMobile)avatarURLS()"
+                  style="position:absolute"/>
+                  <div style="padding-left:24px">
+                    <input class="linkInput" type="text"
+                    onkeyup="if(event.keyCode===13)loadMyAvatar('online')"
+                    placeholder="paste your avatar url here..."
+                    id="avatarLink"/>
+                  </div>
+                </div>
+                <span style="display:flex;justify-content:center">
+                  <div class="dialogbox"
+                  ontouchend="loadMyAvatar('online')"
+                  onmouseup="if(!isMobile)loadMyAvatar('online')"
+                  style="width:96px">
+                    <div class="buttonContainer">
+                      <span>Load <img src="assets/images/avatarLoad.png"/></span>
+                    </div>
+                  </div>
+                </span>
+              </div>
+            </div>
+            <div hidden id="contactWindow">
+              <div class="dialogcontainer">
+                <div class="dialogbox" style="overflow-y:scroll" id="contactList"></div>
+                <div id="contactChat"></div>
+              </div>
+            </div>
+            <div hidden id="userIDWindow">
+              <div class="dialogcontainer">
+                <span style="text-align:center;font-size:24px">Player Profile</span>
+                <div class="dialogbox" style="overflow-x:hidden">
+                  <div class="profileFrame">
+                    <label class="dialogbox" style="overflow:hidden">
+                      <img class="profileImage"
+                      src="assets/images/userProfile.png"
+                      onerror="$(this).attr('src','assets/images/userProfile.png')"
+                      id="profileImage"/>
+                      <input hidden type="file" multiple value="upload" accept="image/*"
+                      onChange="flMxSz=2048*1024;cmprsF=false;uploadAssets('upPPs','upPGa',this.files)"/>
+                    </label>
+                  </div>
+                  <div hidden class="dialogbox" style="align-content:stretch;flex-wrap:wrap;max-height:30vh" id="upPGa"></div>
+                  <div hidden class="dialogbox" style="max-height:14vh" id="upPPs"></div>
+                  <div class="dialogbox" style="overflow:hidden">
+                    <input class="linkInput" type="text"
+                    onkeyup="if(event.keyCode===13)saveUserID()"
+                    placeholder="Player..."
+                    id="userName"/>
+                  </div>
+                  <span style="display:flex;justify-content:center">
+                    <div class="dialogbox"
+                    ontouchend="saveUserID()"
+                    onmouseup="if(!isMobile)saveUserID('online')"
+                    style="width:96px">
+                      <div class="buttonContainer">
+                        <span>Save <img src="assets/images/avatarLoad.png"/></span>
+                      </div>
+                    </div>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div hidden id="contactICON">
+          <div class="topRightNextCIcon">
+            <img src="assets/images/myWallet.png"
+            ontouchstart="myWallet(this,true)"
+            ontouchend="myWallet(this,false)"
+            onmousedown="if(!isMobile)myWallet(this,true)"
+            onmouseup="if(!isMobile)myWallet(this,false)"
+            style="opacity:.86"/>
+          </div>
+          <div class="topRightNextBIcon">
+            <img src="assets/images/myMission.png"
+            ontouchstart="myMission(this,true)"
+            ontouchend="myMission(this,false)"
+            onmousedown="if(!isMobile)myMission(this,true)"
+            onmouseup="if(!isMobile)myMission(this,false)"
+            style="opacity:.86"/>
+          </div>
+          <div class="topRightNextAIcon">
+            <img src="assets/images/myChat.png"
+            ontouchstart="myChat(this,true)"
+            ontouchend="myChat(this,false)"
+            onmousedown="if(!isMobile)myChat(this,true)"
+            onmouseup="if(!isMobile)myChat(this,false)"
+            style="opacity:.86"/>
+          </div>
+          <div class="topRightIcon">
+            <img src="assets/images/contactICON.png"
+            ontouchstart="contactICON(this,true)"
+            ontouchend="contactICON(this,false)"
+            onmousedown="if(!isMobile)contactICON(this,true)"
+            onmouseup="if(!isMobile)contactICON(this,false)"
+            style="opacity:.86"/>
+          </div>
+        </div>
+        <div hidden id="touchControls">
+          <div id="calCulus"></div>
+          <!-- FINANCE -->
+          <div hidden class="topLeftIcon" id="walletICON">
+            <img src="assets/images/wallet.png"
+            ontouchstart="walletICON(this,true)"
+            ontouchend="walletICON(this,false)"
+            onmousedown="if(!isMobile)walletICON(this,true)"
+            onmouseup="if(!isMobile)walletICON(this,false)"
+            style="opacity:.86;height:36px"/>
+            <span style="position:absolute;left:42px;top:7px;font-size:3.7vh;opacity:.76">
+              υς<span style="font-size:3.5vh" id="walletAmount">0.00</span>
+            </span>
+          </div>
+          <!-- LEFT -->
+          <div class="stickBase" style="left:13px">
+            <img src="assets/images/stickcontrolbase.png"/>
+            <div style="position:absolute;left:32px;top:32px" id="stickLEFT">
+              <img src="assets/images/stickcontrolball.png"
+              ontouchstart="stickHalt(this,null)"
+              ontouchend="stickHalt(this,false)"
+              onmousedown="stickHalt(this,null)"
+              onmouseup="stickHalt(this,false)"/>
+            </div>
+          </div>
+          <div class="stickEdge" style="left:19px">
+            <img src="assets/images/stickedgeLEFT.png"
+            ontouchstart="stickedgeLEFT(this,true)"
+            ontouchend="stickedgeLEFT(this,false)"
+            onmousedown="if(!isMobile)stickedgeLEFT(this,true)"
+            onmouseup="if(!isMobile)stickedgeLEFT(this,false)"
+            style="opacity:.86"/>
+          </div>
+          <div class="stickTop" style="left:42px">
+            <img src="assets/images/avatarsticktopLEFT.png"
+            ontouchstart="sticktopLEFT(this,true)"
+            ontouchend="sticktopLEFT(this,false)"
+            onmousedown="if(!isMobile)sticktopLEFT(this,true)"
+            onmouseup="if(!isMobile)sticktopLEFT(this,false)"
+            style="opacity:.86" id="sticktopLEFT"/>
+          </div>
+          <div class="stickSide" style="left:101px">
+            <div style="margin-left:-28px;margin-bottom:7px;font-size:18px;opacity:.76">
+              <span hidden style="font-size:16px" id="vehicleGear">1</span>
+            </div>
+            <img src="assets/images/avatarsticksideLEFT.png"
+            ontouchstart="sticksideLEFT(this,true)"
+            ontouchend="sticksideLEFT(this,false)"
+            onmousedown="if(!isMobile)sticksideLEFT(this,true)"
+            onmouseup="if(!isMobile)sticksideLEFT(this,false)"
+            style="opacity:.86" id="sticksideLEFT"/>
+          </div>
+          <!-- LEFT OPTIONS -->
+          <div hidden id="menuOption">
+            <div class="topLeftIcon">
+              <img src="assets/images/backOUT.png"
+              ontouchstart="backOUT(this,true)"
+              ontouchend="backOUT(this,false)"
+              onmousedown="if(!isMobile)backOUT(this,true)"
+              onmouseup="if(!isMobile)backOUT(this,false)"
+              style="opacity:.86"/>
+            </div>
+            <div class="topRightIcon">
+              <img src="assets/images/replayIN.png"
+              ontouchstart="replayIN(this,true)"
+              ontouchend="replayIN(this,false)"
+              onmousedown="if(!isMobile)replayIN(this,true)"
+              onmouseup="if(!isMobile)replayIN(this,false)"
+              style="opacity:.86"/>
+            </div>
+            <div class="topRightNextAIcon">
+              <img src="assets/images/myCharacter.png"
+              ontouchstart="myCharacter(this,true)"
+              ontouchend="myCharacter(this,false)"
+              onmousedown="if(!isMobile)myCharacter(this,true)"
+              onmouseup="if(!isMobile)myCharacter(this,false)"
+              style="opacity:.86"/>
+            </div>
+            <div class="topRightNextBIcon">
+              <img src="assets/images/switchDay.png"
+              ontouchstart="switchDay(this,true)"
+              ontouchend="switchDay(this,false)"
+              onmousedown="if(!isMobile)switchDay(this,true)"
+              onmouseup="if(!isMobile)switchDay(this,false)"
+              style="opacity:.86"/>
+            </div>
+            <div class="topRightNextCIcon">
+              <img src="assets/images/switchNight.png"
+              ontouchstart="switchNight(this,true)"
+              ontouchend="switchNight(this,false)"
+              onmousedown="if(!isMobile)switchNight(this,true)"
+              onmouseup="if(!isMobile)switchNight(this,false)"
+              style="opacity:.86"/>
+            </div>
+            <div class="topRightNextDIcon">
+              <img src="assets/images/userID.png"
+              ontouchstart="userID(this,true)"
+              ontouchend="userID(this,false)"
+              onmousedown="if(!isMobile)userID(this,true)"
+              onmouseup="if(!isMobile)userID(this,false)"
+              style="opacity:.86"/>
+            </div>
+            <div class="topRightNextEIcon" id="loadMyObject">
+              <img src="assets/images/loadMyObject.png"
+              ontouchstart="loadMyObject(this,true)"
+              ontouchend="loadMyObject(this,false)"
+              onmousedown="if(!isMobile)loadMyObject(this,true)"
+              onmouseup="if(!isMobile)loadMyObject(this,false)"
+              style="opacity:.86"/>
+            </div>
+          </div>
+          <!-- CAMERA OPTIONS -->
+          <div hidden id="cameraOption">
+            <div hidden class="topRightNextBIcon" id="goVRICON">
+              <img src="assets/images/goVR.png"
+              ontouchstart="goVR(this,true)"
+              ontouchend="goVR(this,false)"
+              onmousedown="if(!isMobile)goVR(this,true)"
+              onmouseup="if(!isMobile)goVR(this,false)"
+              style="opacity:.86"/>
+            </div>
+            <div class="topRightIcon">
+              <img src="assets/images/optionPixelUP.png"
+              ontouchstart="optionPixelUP(this,true)"
+              ontouchend="optionPixelUP(this,false)"
+              onmousedown="if(!isMobile)optionPixelUP(this,true)"
+              onmouseup="if(!isMobile)optionPixelUP(this,false)"
+              style="opacity:.86"/>
+            </div>
+            <div class="topRightSecondIcon">
+              <img src="assets/images/optionPixelDOWN.png"
+              ontouchstart="optionPixelDOWN(this,true)"
+              ontouchend="optionPixelDOWN(this,false)"
+              onmousedown="if(!isMobile)optionPixelDOWN(this,true)"
+              onmouseup="if(!isMobile)optionPixelDOWN(this,false)"
+              style="opacity:.86"/>
+            </div>
+            <div class="topRightNextAIcon">
+              <img src="assets/images/exposureUP.png"
+              ontouchstart="exposureUP(this,true)"
+              ontouchend="exposureUP(this,false)"
+              onmousedown="if(!isMobile)exposureUP(this,true)"
+              onmouseup="if(!isMobile)exposureUP(this,false)"
+              style="opacity:.86"/>
+            </div>
+            <div class="topRightNextSecondIcon">
+              <img src="assets/images/exposureDOWN.png"
+              ontouchstart="exposureDOWN(this,true)"
+              ontouchend="exposureDOWN(this,false)"
+              onmousedown="if(!isMobile)exposureDOWN(this,true)"
+              onmouseup="if(!isMobile)exposureDOWN(this,false)"
+              style="opacity:.86"/>
+            </div>
+            <div class="topLeftNextAIcon">
+              <img src="assets/images/fovUP.png"
+              ontouchstart="fovUP(this,true)"
+              ontouchend="fovUP(this,false)"
+              onmousedown="if(!isMobile)fovUP(this,true)"
+              onmouseup="if(!isMobile)fovUP(this,false)"
+              style="opacity:.86"/>
+            </div>
+            <div class="topLeftNextSecondIcon">
+              <img src="assets/images/fovDOWN.png"
+              ontouchstart="fovDOWN(this,true)"
+              ontouchend="fovDOWN(this,false)"
+              onmousedown="if(!isMobile)fovDOWN(this,true)"
+              onmouseup="if(!isMobile)fovDOWN(this,false)"
+              style="opacity:.86"/>
+            </div>
+            <div class="topLeftIcon">
+              <img src="assets/images/zoomNEAR.png"
+              ontouchstart="zoomNEAR(this,true)"
+              ontouchend="zoomNEAR(this,false)"
+              onmousedown="if(!isMobile)zoomNEAR(this,true)"
+              onmouseup="if(!isMobile)zoomNEAR(this,false)"
+              style="opacity:.86"/>
+            </div>
+            <div class="topLeftSecondIcon">
+              <img src="assets/images/zoomFAR.png"
+              ontouchstart="zoomFAR(this,true)"
+              ontouchend="zoomFAR(this,false)"
+              onmousedown="if(!isMobile)zoomFAR(this,true)"
+              onmouseup="if(!isMobile)zoomFAR(this,false)"
+              style="opacity:.86"/>
+            </div>
+          </div>
+          <!-- RIGHT -->
+          <div class="stickBase" style="right:13px">
+            <img src="assets/images/stickcontrolbase.png"/>
+            <div style="position:absolute;left:32px;top:32px" id="stickRIGHT">
+              <img src="assets/images/stickcontrolball.png"
+              ontouchstart="stickHalt(this,null)"
+              ontouchend="stickHalt(this,true)"
+              onmousedown="stickHalt(this,null)"
+              onmouseup="stickHalt(this,true)"/>
+            </div>
+          </div>
+          <div class="stickEdge" style="right:19px">
+            <img src="assets/images/stickedgeRIGHT.png"
+            ontouchstart="stickedgeRIGHT(this,true)"
+            ontouchend="stickedgeRIGHT(this,false)"
+            onmousedown="if(!isMobile)stickedgeRIGHT(this,true)"
+            onmouseup="if(!isMobile)stickedgeRIGHT(this,false)"
+            style="opacity:.86"/>
+          </div>
+          <div class="stickTop" style="right:42px">
+            <img src="assets/images/avatarsticktopRIGHT.png"
+            ontouchstart="sticktopRIGHT(this,true)"
+            ontouchend="sticktopRIGHT(this,false)"
+            onmousedown="if(!isMobile)sticktopRIGHT(this,true)"
+            onmouseup="if(!isMobile)sticktopRIGHT(this,false)"
+            style="opacity:.86" id="sticktopRIGHT"/>
+          </div>
+          <div class="stickSide" style="right:101px">
+            <img src="assets/images/avatarsticksideRIGHT.png"
+            ontouchstart="sticksideRIGHT(this,true)"
+            ontouchend="sticksideRIGHT(this,false)"
+            onmousedown="if(!isMobile)sticksideRIGHT(this,true)"
+            onmouseup="if(!isMobile)sticksideRIGHT(this,false)"
+            style="opacity:.86" id="sticksideRIGHT"/>
+            <div hidden class="notifyDot" style="right:16px;bottom:37px" id="notifyDot"></div>
+          </div>
+          <canvas hidden id="carEngineSound"></canvas>
+        </div>
+      </span>
+    </div>
+    <script>
+        // Environment variables
+        var sunShadowParameters = {
+            elevation: 45,
+            azimuth: 45
+        }
+        // Animation variables
+        var playedAnimation = []
+        var prevAct = [],
+            recyleAct = []
+        // Player variables
+        var stickLA = [],
+            stickLD = [],
+            stickRD = [],
+            jumpLD = []
+        // Controller variables
+        let stickLEFT = new JoystickController("stickLEFT", 64, 8)
+        let stickRIGHT = new JoystickController("stickRIGHT", 64, 8)
+        // ==== FUNCTIONS ====
+        // Get render settings
+        function setRenderSettings() {
+            engineParameters.renderer.shadowMap.type = returnConstant('PCFSoftShadowMap')
+            engineParameters.renderer.toneMapping = returnConstant('ReinhardToneMapping')
+            engineParameters.maxAnisotropy = engineParameters.renderer.capabilities.getMaxAnisotropy()
+            return 1.2
+        }
+        // Load render passes
+        function loadRenderPasses(cam) {
+            // Composer
+            let composer = returnConstant('effectComposer')
+            composer.addPass(returnConstant('renderPass', cam))
+            // Distortion
+            engineParameters.effect = returnConstant('shaderPass')
+            let height = Math.tan(returnConstant('rPassMath') / 2) / cam.aspect
+            cam.fov = Math.atan(height) * 2 * 180 / Math.PI
+            cam.updateProjectionMatrix()
+            engineParameters.effect.uniforms.strength.value = .36 + .18
+            engineParameters.effect.uniforms.height.value = height
+            engineParameters.effect.uniforms.aspectRatio.value = cam.aspect
+            engineParameters.effect.uniforms.cylindricalRatio.value = 2
+            composer.addPass(engineParameters.effect)
+            // Bloom
+            let bloomPass = returnConstant('uBloomPass')
+            bloomPass.strength = .64
+            bloomPass.radius = .16
+            bloomPass.threshold = .96
+            bloomPass.exposure = .32
+            bloomPass.cameraZoom = cam.zoom
+            composer.addPass(bloomPass)
+            // FXAA
+            engineParameters.fxaaPass = returnConstant('fXAAShader')
+            pixelRatio = engineParameters.renderer.getPixelRatio()
+            engineParameters.fxaaPass.uniforms.resolution.value.set(1 / (window.innerWidth * pixelRatio), 1 / (window.innerHeight * pixelRatio))
+            composer.addPass(engineParameters.fxaaPass)
+            return composer
+        }
+        // Camera distortion
+        function getDistortionShaderDefinition() {
+            return {
+                uniforms: {
+                    'tDiffuse': {
+                        type: 't',
+                        value: null
+                    },
+                    'strength': {
+                        type: 'f',
+                        value: 0
+                    },
+                    'height': {
+                        type: 'f',
+                        value: 1
+                    },
+                    "aspectRatio": {
+                        type: 'f',
+                        value: 1
+                    },
+                    'cylindricalRatio': {
+                        type: 'f',
+                        value: 1
+                    }
+                },
+                vertexShader: [
+                    'uniform float strength;', // s: 0 = perspective, 1 = stereographic
+                    'uniform float height;', // h: tan(verticalFOVInRadians / 2)
+                    'uniform float aspectRatio;', // a: screenWidth / screenHeight
+                    'uniform float cylindricalRatio;', // c: cylindrical distortion ratio. 1 = spherical
+                    'varying vec3 vUV;', // output to interpolate over screen
+                    'varying vec2 vUVDot;', // output to interpolate over screen
+                    'void main(){',
+                    'gl_Position=projectionMatrix*(modelViewMatrix*vec4(position,1.0));',
+                    'float scaledHeight=strength*height;',
+                    'float cylAspectRatio=aspectRatio*cylindricalRatio;',
+                    'float aspectDiagSq=aspectRatio*aspectRatio+1.0;',
+                    'float diagSq=scaledHeight*scaledHeight*aspectDiagSq;',
+                    'vec2 signedUV=(2.0*uv+vec2(-1.0,-1.0));',
+                    'float z=.5*sqrt(diagSq+1.0)+.5;',
+                    'float ny=(z-1.0)/(cylAspectRatio*cylAspectRatio+1.0);',
+                    'vUVDot=sqrt(ny)*vec2(cylAspectRatio,1.0)*signedUV;',
+                    'vUV=vec3(.5,.5,1.0)*z+vec3(-.5,-.5,0);',
+                    'vUV.xy+=uv;',
+                    '}'
+                ].join("\n"),
+                fragmentShader: [
+                    'uniform sampler2D tDiffuse;', // sampler of rendered scene?s render target
+                    'varying vec3 vUV;', // interpolated vertex output data
+                    'varying vec2 vUVDot;', // interpolated vertex output data
+                    'void main(){',
+                    'vec3 uv=dot(vUVDot, vUVDot)*vec3(-.5,-.5,-1)+vUV;',
+                    'gl_FragColor=texture2DProj(tDiffuse,uv);',
+                    '}'
+                ].join('\n')
+            };
+        }
+        // Cascaded shadow
+        function loadCascadedShadow() {
+            engineParameters.csm = returnConstant('csm', {
+                fade: true,
+                fov: engineParameters.camera.fov,
+                maxFar: 64,
+                cascades: 3,
+                parent: engineParameters.scene,
+                camera: engineParameters.camera,
+                mode: 'practical',
+                shadowMapSize: isMobile ? 2048 : 4096,
+                shadowBias: -.0001,
+                lightMargin: 100,
+                lightIntensity: 4.2,
+                lightFar: 512,
+                lightNear: 1
+            })
+            engineParameters.csm.fade = true
+        }
+        // Cascaded shadows
+        function updateSunShadow() {
+            const sunDistance = 10
+            // Sun intensity
+            if (sunShadowParameters.elevation >= 0 && sunShadowParameters.elevation <= 180) {
+                engineParameters.ambientLight.intensity = .2 + Math.pow(1 - (Math.abs(sunShadowParameters.elevation - 90) / 90), .25) * (1.2 - .2) // Day light
+                engineParameters.csm.lightIntensity = 2.4 + Math.pow(1 - (Math.abs(sunShadowParameters.elevation - 90) / 90), .25) * (4.2 - 2.4) // Day light
+            } else {
+                engineParameters.ambientLight.intensity = .2 // Night light
+                engineParameters.csm.lightIntensity = 2.4
+            }
+            return {
+                x: (Math.sin(sunShadowParameters.azimuth * Math.PI / 180) * Math.cos(sunShadowParameters.elevation * Math.PI / 180)).toFixed(3),
+                y: (Math.sin(sunShadowParameters.elevation * Math.PI / 180)).toFixed(3),
+                z: (Math.cos(sunShadowParameters.azimuth * Math.PI / 180) * Math.cos(sunShadowParameters.elevation * Math.PI / 180)).toFixed(3)
+            }
+        }
+        // ==== NAVIGATE POSITION ====
+        // Get object distance
+        function getObjectDistance(tc0) {
+            try {
+                return getVectorDistance(modelsParameters.meshesData[playerParameters.index].position.x,
+                    engineParameters.world.bodies[tc0].position.x, modelsParameters.meshesData[playerParameters.index].position.z, engineParameters.world.bodies[tc0].position.z).distance
+            } catch (err) {
+                lsEr(playerParameters.levelName + 'playerAvatar')
+                history.back()
+            }
+        }
+        // Get vector distance
+        function getVectorDistance(mX, tX, mZ, tZ) {
+            let dX = mX - tX,
+                dZ = mZ - tZ
+            return {
+                distance: Math.sqrt(dX * dX + dZ * dZ),
+                dX: dX,
+                dZ: dZ
+            }
+        }
+        // Normal angle
+        function normalAngle(nA0) {
+            do {
+                nA0 += 360
+            } while (nA0 < -0)
+            do {
+                nA0 -= 360
+            } while (nA0 > 360)
+            if (nA0 > 360) nA0 -= 360
+            if (nA0 < 0) nA0 += 360
+            return nA0
+        }
+        // Navigate player to position
+        function navigatePlayerPosition(index) {
+            let walk = 0,
+                stir = 0,
+                targetAngle
+            if (onlineMultiplayer.ready) {
+                if (modelsParameters.meshesData[index].name == onlineMultiplayer.uid[index]) {
+                    pVector = getVectorDistance(modelsParameters.meshesData[index].position.x, onlineMultiplayer.target[index].x, modelsParameters.meshesData[index].position.z, onlineMultiplayer.target[index].z)
+                    if (pVector.distance > .1 || modelsParameters.driveVehicleIndex[index] != null) {
+                        targetAngle = Math.atan2(pVector.dX, pVector.dZ) * 180 / Math.PI - 180
+                        if (modelsParameters.driveVehicleIndex[index] != null) {
+                            if (pVector.distance > 1) {
+                                walk = pVector.distance < 100 ? pVector.distance.toFixed(0) * 10 : 100
+                                modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].gear = pVector.distance < 60 ? (pVector.distance / 10 + 1).toFixed(0) : 7
+                            }
+                        } else walk = pVector.distance > .1 ? 5 : pVector.distance > 9 ? 55 : pVector.distance > 15 ? 70 : 0
+                    } else targetAngle = onlineMultiplayer.target[index].o * 180 / Math.PI
+                    targetAngle = normalAngle(targetAngle) - 360
+                    targetAngle *= Math.PI / 180
+                    let tDif = normalAngle(targetAngle * 180 / Math.PI - modelsParameters.meshesData[index].rotation.y * 180 / Math.PI).toFixed(0)
+                    if (tDif == 0 || tDif == 360) {
+                        modelsParameters.meshesData[index].rotation.y = targetAngle
+                    } else {
+                        let tLeft = normalAngle(targetAngle * 180 / Math.PI - modelsParameters.meshesData[index].rotation.y * 180 / Math.PI)
+                        let tRight = normalAngle(modelsParameters.meshesData[index].rotation.y * 180 / Math.PI - targetAngle * 180 / Math.PI)
+                        if (modelsParameters.driveVehicleIndex[index] != null) {
+                            if (pVector.distance > 1) {
+                                if (tLeft < tRight) {
+                                    stir = -tLeft - 30
+                                    if (tLeft > 90) {
+                                        stir /= -4
+                                        walk *= -.3
+                                    }
+                                } else {
+                                    stir = tRight + 30
+                                    if (tRight > 90) {
+                                        stir /= -4
+                                        walk *= -.3
+                                    }
+                                }
+                            }
+                        } else {
+                            if (tLeft < tRight) {
+                                modelsParameters.meshesData[index].rotation.y += tLeft * Math.PI / 180 * .1
+                                stir = -10
+                            } else {
+                                modelsParameters.meshesData[index].rotation.y -= tRight * Math.PI / 180 * .1
+                                stir = 10
+                            }
+                            walk = 0
+                        }
+                    }
+                }
+            }
+            if (stir > 100) stir = 100
+            if (stir < -100) stir = -100
+            if (walk > 100) walk = 100
+            if (walk < -100) walk = -100
+            return {
+                walk: walk,
+                stir: stir
+            }
+        }
+        // ==== STICK CONTROLS ====
+        // Update stick control X Y
+        function updateStickXY(index) {
+            let stickLX, stickLY, stickRX, stickRY, stickRA, l0, navString
+            if (isAboveWater(index, -.3)) {
+                if (stickLD[playerParameters.index] != 'C') hideLeftOptions()
+                if (stickRD[playerParameters.index] != 'C') $('#menuOption').fadeOut('slow')
+            }
+            if (playerControlsParameters.stunned[index]) {
+                playerControlsParameters.stunned[index] = null
+                setTimeout(function() {
+                    playerControlsParameters.stunned[index] = false
+                }, playerParameters.index == index ? 600 : 1200)
+            }
+            if (modelsParameters.loaded == 0 && !playerControlsParameters.stunned[index] && (!playerHit.includes(prevAct[index]) || (playerParameters.index == index && !playerControlsParameters.stunned[index])) && isMovingJump(index)) {
+                // Left stick
+                if (index == playerParameters.index) {
+                    stickLX = parseInt(stickLEFT.value.x * 100)
+                    stickLY = parseInt(stickLEFT.value.y * 100 * -1)
+                } else {
+                    stickLX = 0
+                    navString = navigatePlayerPosition(index)
+                    stickLY = navString.walk
+                    if (modelsParameters.driveVehicleIndex[index] != null) {
+                        if (modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].stickLY != 0) {
+                            stickLY = modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].stickLY = interpolate(modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].stickLY, stickLY, .05)
+                        }
+                    }
+                }
+                if (modelsParameters.driveVehicleIndex[index] != null) {
+                    modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].stickLY = stickLY
+                    if (playerControlsParameters.mySeat[index] == 0) {
+                        if (stickLY == 0) {
+                            if (modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].forwardForce > 500 || modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].reverseForce > 500) {
+                                [0, 1, 2, 3].forEach(wheelIndex => {
+                                    modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].forwardForce = modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].reverseForce = 500
+                                    try {
+                                        modelsParameters.vehicle[modelsParameters.driveVehicleIndex[index]].applyEngineForce(0, wheelIndex)
+                                    } catch (err) {}
+                                })
+                                stickLD[index] = 'C'
+                            }
+                            carEngineSound(index, 10)
+                        } else {
+                            if (stickLY > 0 && stickLY > stickLX && stickLY > -stickLX) {
+                                [0, 1, 2, 3].forEach(wheelIndex => {
+                                    stickLD[index] = 'D'
+                                    if (wheelIndex == 0) modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].forwardForce = interpolate(modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].forwardForce, 10000 * modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].gear, .00025 * engineParameters.acceleration)
+                                    try {
+                                        if (modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].forwardForce < 1000 || wheelIndex > 1) modelsParameters.vehicle[modelsParameters.driveVehicleIndex[index]].applyEngineForce(-modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].forwardForce * (wheelIndex > 1 ? 5 : 1) * stickLY / 100, wheelIndex)
+                                    } catch (err) {}
+                                })
+                                carEngineSound(index, stickLY)
+                            }
+                            if (stickLY < 0 && stickLY < stickLX && stickLY < -stickLX) {
+                                [0, 1, 2, 3].forEach(wheelIndex => {
+                                    if (wheelIndex == 0) {
+                                        modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].reverseForce = interpolate(modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].reverseForce, 2000, .00025)
+                                        modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].gear = 1
+                                        if (playerParameters.index == index) showGearLevel()
+                                    }
+                                    try {
+                                        modelsParameters.vehicle[modelsParameters.driveVehicleIndex[index]].applyEngineForce(modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].reverseForce * (wheelIndex > 1 ? 1 : 5) * -stickLY / 100, wheelIndex)
+                                    } catch (err) {}
+                                })
+                                carEngineSound(index, -stickLY)
+                            }
+                        }
+                        if (index == playerParameters.index) updateActivity('none')
+                    }
+                } else {
+                    if (stickLX == 0 && stickLY == 0) {
+                        if (prevAct[index] == 'FallingToLanding') return
+                        stickLD[index] = 'C'
+                        if ((!standIdle.includes(stickLA[index]) || prevAct[index] != stickLA[index])) stickLA[index] = randomString(standIdle)
+                        if (engineParameters.isWaterLoaded && modelsParameters.meshesData[index].position.y < -.9 && !playerControlsParameters.onfloor[index]) playPlayerAnimation('TreadingWater', index, true)
+                        l0 = true
+                    } else {
+                        l0 = false
+                        stickLD[index] = (stickLY > 0 ? 'N' : '') + (stickLY < 0 ? 'S' : '') + (stickLX > 0 ? 'W' : '') + (stickLX < 0 ? 'E' : '')
+                        if (stickLD[index].includes('E')) {
+                            if (modelsParameters.meshesData[index].position.y < -1.1 && engineParameters.isWaterLoaded && !playerControlsParameters.onfloor[index]) {
+                                stickLA[index] = 'SwimmingLeft'
+                            } else if (stickLX > -30) {
+                                stickLA[index] = 'WalkStrafeLeft'
+                                playerControlsParameters.speed = 7
+                            } else if (stickLX > -50) {
+                                stickLA[index] = 'LeftStrafeWalking'
+                                playerControlsParameters.speed = 14
+                            } else if (stickLX > -65) {
+                                stickLA[index] = 'JogStrafeLeft'
+                                playerControlsParameters.speed = 30
+                            } else {
+                                stickLA[index] = 'LeftStrafe'
+                                playerControlsParameters.speed = 50
+                            }
+                            if (index == playerParameters.index) updateActivity('none')
+                        }
+                        if (stickLD[index].includes('W')) {
+                            if (modelsParameters.meshesData[index].position.y < -1.1 && engineParameters.isWaterLoaded && !playerControlsParameters.onfloor[index]) {
+                                stickLA[index] = 'SwimmingRight'
+                            } else if (stickLX < 30) {
+                                stickLA[index] = 'WalkStrafeRight'
+                                playerControlsParameters.speed = 7
+                            } else if (stickLX < 50) {
+                                stickLA[index] = 'RightStrafeWalking'
+                                playerControlsParameters.speed = 14
+                            } else if (stickLX < 65) {
+                                stickLA[index] = 'JogStrafeRight'
+                                playerControlsParameters.speed = 30
+                            } else {
+                                stickLA[index] = 'RightStrafe'
+                                playerControlsParameters.speed = 50
+                            }
+                            if (index == playerParameters.index) updateActivity('none')
+                        }
+                        if (stickLD[index] == 'N' || (stickLD[index] == 'NE' && stickLY > stickLX * -1) || (stickLD[index] == 'NW' && stickLY > stickLX)) {
+                            if (modelsParameters.meshesData[index].position.y < -1.1 && engineParameters.isWaterLoaded && !playerControlsParameters.onfloor[index]) {
+                                stickLA[index] = 'Swimming'
+                                if (index == playerParameters.index && engineParameters.camera.position.y > -.9 && engineParameters.cameraIndex == 0) engineParameters.camera.position.y -= .1
+                            } else if (isPlayerFalling(index, -5) && !playerControlsParameters.onfloor[index] && stickLY > 90 && prevAct[index] != 'FallingToLanding' && prevAct[index] != 'RunningForwardFlip') {
+                                stickLA[index] = 'Flying'
+                                l0 = true
+                                playerControlsParameters.speed = 64
+                                playerControlsParameters.physics[index].velocity.y /= 1.05
+                            } else {
+                                if (stickLY < 50) {
+                                    stickLA[index] = 'Walking'
+                                    playerControlsParameters.speed = 18
+                                } else if (stickLY < 65) {
+                                    stickLA[index] = 'Running'
+                                    playerControlsParameters.speed = 36
+                                } else {
+                                    stickLA[index] = 'RunningFast'
+                                    playerControlsParameters.speed = 48
+                                }
+                            }
+                            if (index == playerParameters.index) updateActivity('none')
+                        }
+                        if (stickLD[index] == 'S' || (stickLD[index] == 'SE' && stickLY * -1 > stickLX * -1) || (stickLD[index] == 'SW' && stickLY * -1 > stickLX)) {
+                            if (modelsParameters.meshesData[index].position.y < -1.1 && engineParameters.isWaterLoaded) {
+                                stickLA[index] = 'SwimmingBackwards'
+                            } else if (stickLY > -50) {
+                                stickLA[index] = 'WalkingBackwards'
+                                playerControlsParameters.speed = 10
+                            } else if (stickLY > -65) {
+                                stickLA[index] = 'SlowJogBackwards'
+                                playerControlsParameters.speed = 16
+                            } else {
+                                stickLA[index] = 'RunningBackward'
+                                playerControlsParameters.speed = 28
+                            }
+                            if (index == playerParameters.index) updateActivity('none')
+                        }
+                    }
+                }
+                // Right Stick
+                if (index == playerParameters.index) {
+                    stickRX = parseInt(stickRIGHT.value.x * 100)
+                    stickRY = parseInt(stickRIGHT.value.y * 100 * -1)
+                } else {
+                    stickRY = 0
+                    stickRX = navString.stir
+                    if (modelsParameters.driveVehicleIndex[index] != null) {
+                        if (modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].stickRX != 0) {
+                            stickRX = modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].stickRX = interpolate(modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].stickRX, stickRX, .05)
+                        }
+                    }
+                }
+                if (modelsParameters.driveVehicleIndex[index] != null) {
+                    if (playerControlsParameters.mySeat[index] == 0) {
+                        modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].stickRX = stickRX
+                        if (stickRX == 0) {
+                            if (modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].steerForce > .01) {
+                                [0, 1].forEach(wheelIndex => {
+                                    modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].steerForce = .01
+                                    try {
+                                        modelsParameters.vehicle[modelsParameters.driveVehicleIndex[index]].setSteeringValue(0, wheelIndex)
+                                    } catch (err) {}
+                                })
+                                stickRD[index] = 'C'
+                            }
+                        } else {
+                            if (stickRX > 0 && stickRX > stickRY && stickRX > -stickRY) {
+                                [0, 1].forEach(wheelIndex => {
+                                    if (wheelIndex == 0) modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].steerForce = interpolate(modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].steerForce, .75, .55)
+                                    try {
+                                        modelsParameters.vehicle[modelsParameters.driveVehicleIndex[index]].setSteeringValue(modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].steerForce * -stickRX / 100, wheelIndex)
+                                    } catch (err) {}
+                                })
+                            }
+                            if (stickRX < 0 && stickRX < stickRY && stickRX < -stickRY) {
+                                [0, 1].forEach(wheelIndex => {
+                                    if (wheelIndex == 0) modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].steerForce = interpolate(modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].steerForce, .75, .55)
+                                    try {
+                                        modelsParameters.vehicle[modelsParameters.driveVehicleIndex[index]].setSteeringValue(-modelsParameters.vehicleMotor[modelsParameters.driveVehicleIndex[index]].steerForce * stickRX / 100, wheelIndex)
+                                    } catch (err) {}
+                                })
+                            }
+                        }
+                        if (index == playerParameters.index) updateActivity('none')
+                    }
+                }
+                if (stickRX == 0 && stickRY == 0) {
+                    stickRD[index] = 'C'
+                    stickRA = 'Halt'
+                } else {
+                    stickRD[index] = (stickRY > 0 ? 'N' : '') + (stickRY < 0 ? 'S' : '') + (stickRX > 0 ? 'W' : '') + (stickRX < 0 ? 'E' : '')
+                    if (stickRD[index].includes('E')) stickRA = 'WalkStrafeLeft'
+                    if (stickRD[index].includes('W')) stickRA = 'WalkStrafeRight'
+                    if (stickRD[index] == 'N' || (stickRD[index] == 'NE' && stickRY > stickRX * -1) || (stickRD[index] == 'NW' && stickRY > stickRX)) stickRA = 'Up'
+                    if (stickRD[index] == 'S' || (stickRD[index] == 'SE' && stickRY * -1 > stickRX * -1) || (stickRD[index] == 'SW' && stickRY * -1 > stickRX)) stickRA = 'Down'
+                }
+                if (stickRA != 'Halt') {
+                    if (playerControlsParameters.onfloor[index]) {
+                        if (!standIdle.includes(stickLA[index])) {
+                            playPlayerAnimation(stickLA[index], index, false)
+                        } else if (stickRA != 'Up' && stickRA != 'Down') playPlayerAnimation(stickRA, index, false)
+                    }
+                    if (stickRA == 'Up' || stickRA == 'Down') engineParameters.lookElevation += stickRY / (engineParameters.cameraIndex == 1 ? (10000 * engineParameters.camera.zoom) : (1000 * engineParameters.camera.zoom))
+                    if (index == playerParameters.index) {
+                        if (playerControlsParameters.alive[index] && (stickRA == 'WalkStrafeLeft' || stickRA == 'WalkStrafeRight')) {
+                            if (modelsParameters.driveVehicleIndex[index] == null) modelsParameters.meshesData[index].rotation.y -= stickRX / 700 / engineParameters.camera.zoom
+                        }
+                        playerControlsParameters.player.rotation.y = modelsParameters.meshesData[index].rotation.y
+                    }
+                } else if (playerControlsParameters.onfloor[index] || stickLA[index].match(/(Flying|Swimming)/)) playPlayerAnimation(stickLA[index], index, l0)
+                if (index == playerParameters.index) {
+                    if (stickLD[playerParameters.index] == 'C' && stickRD[playerParameters.index] == 'C' && !prevAct[playerParameters.index].match(/(FallingToLanding|Falling|Floating)/) || prevAct[playerParameters.index].match(/(Flying|Swimming)/)) updateActivity('none')
+                }
+            }
+        }
+        // Check if player is escaping
+        function isPlayersEscaping(pe0, er0) {
+            if (playerControlsParameters.physics[pe0].velocity.y > er0) {
+                return true
+            } else return false
+        }
+        // Check if player is falling
+        function isPlayerFalling(pf0, fr0) {
+            if (playerControlsParameters.physics[pf0].velocity.y < fr0) {
+                return true
+            } else return false
+        }
+        // Check if character has jump forward or backward
+        function isMovingJump(mv0) {
+            if (prevAct[mv0] !== undefined) {
+                if (!prevAct[mv0].match(/(Flip|wardJump)/)) {
+                    return true
+                } else return false
+            } else return false
+        }
+        // Logic above water or no water
+        function isAboveWater(aw0, ht0) {
+            return engineParameters.isWaterLoaded && modelsParameters.meshesData[aw0].position.y > ht0 || !engineParameters.isWaterLoaded
+        }
+        // Is index player
+        function isPlayersIndex(pi0) {
+            if (pi0 >= 0 && pi0 < playerControlsParameters.onfloor.length) {
+                return true
+            } else return false
+        }
+        // Decode animation
+        function playPlayerAnimation(act, index, l0) {
+            if (modelsParameters.driveVehicleIndex[index] == null) {
+                if ((!prevAct[playerParameters.index].match(/(WalkStrafeLeft|WalkStrafeRight)/) && !standIdle.includes(prevAct[playerParameters.index]) && stickLD[playerParameters.index] == 'C') || (standIdle.includes(prevAct[playerParameters.index]) && stickLD[playerParameters.index] != 'C')) playSoundEffects(false)
+                if (act.match(/(SwimmingLeft|SwimmingRight|SwimmingBackwards)/)) act = 'TreadingWater'
+                if (prevAct[index] != act && act != 'none') {
+                    prevAct[index] = act
+                    loadFBXAnim(act + '.fbx', engineParameters.scene.children[modelsParameters.meshIndex[index]], index, false, l0)
+                }
+            }
+        }
+        // ==== MOVEMENT CONTROLS ====
+        // Get forward vector
+        function getForwardVector(index) {
+            engineParameters.scene.children[modelsParameters.meshIndex[index]].getWorldDirection(playerControlsParameters.direction[index])
+            playerControlsParameters.direction[index].y = 0
+            playerControlsParameters.direction[index].normalize()
+            return playerControlsParameters.direction[index]
+        }
+        // Get side vector
+        function getSideVector(index) {
+            engineParameters.scene.children[modelsParameters.meshIndex[index]].getWorldDirection(playerControlsParameters.direction[index])
+            playerControlsParameters.direction[index].y = 0
+            playerControlsParameters.direction[index].normalize()
+            playerControlsParameters.direction[index].cross(engineParameters.camera.up)
+            return playerControlsParameters.direction[index]
+        }
+        // Check world limit
+        function inWorldLimit(px, pz, range) {
+            let limit = engineParameters.size / range
+            if (px < limit && px > -limit && pz < limit && pz > -limit) {
+                return true
+            } else return false
+        }
+        // Player controls
+        function playerControls(deltaTime, index) {
+            if (engineParameters.scene.children[modelsParameters.meshIndex[index]] != undefined) {
+                let speedDelta, speedOffset, jh, act, swimAct
+                if (playerControlsParameters.alive[index] && inWorldLimit(modelsParameters.meshesData[index].position.x, modelsParameters.meshesData[index].position.z, 2.5)) {
+                    speedOffset = isMobile ? 2 : 1
+                    if (modelsParameters.meshesData[index].position.y < -1.1 && !playerControlsParameters.onfloor[index]) {
+                        if (stickLA[index].includes('Swimming')) {
+                            swimAct = stickLA[index]
+                            setTimeout(function() {
+                                speedDelta = deltaTime * (swimAct == 'Swimming' ? 16 * speedOffset : 10 * speedOffset)
+                                if (swimAct == 'Swimming' || swimAct == 'SwimmingBackwards') {
+                                    speedDelta = swimAct == 'SwimmingBackwards' ? -speedDelta : speedDelta
+                                    playerControlsParameters.velocity[index].add(getForwardVector(index).multiplyScalar(speedDelta))
+                                } else {
+                                    speedDelta = swimAct == 'SwimmingLeft' ? -speedDelta : speedDelta
+                                    playerControlsParameters.velocity[index].add(getSideVector(index).multiplyScalar(speedDelta))
+                                }
+                                if (!playedAnimation[index].includes(swimAct)) playedAnimation[index] += swimAct
+                                copyVelocity(stickLA[index], index)
+                            }, 300)
+                        }
+                    } else {
+                        if (stickLD[index] == 'C' && playerControlsParameters.onfloor[index]) playerSlowDown(index, 7)
+                        if (stickLA[index].includes('Backward')) {
+                            playerControlsParameters.physics[index].material.friction = .00001
+                            speedDelta = deltaTime * (playerControlsParameters.onfloor[index] ? playerControlsParameters.speed * speedOffset : 30 * speedOffset)
+                            playerControlsParameters.velocity[index].add(getForwardVector(index).multiplyScalar(-speedDelta))
+                            copyVelocity(stickLA[index], index)
+                        }
+                        if (stickLA[index].match(/(Flying|Walking|Running|RunningFast)/) && !stickLA[index].match(/(Back|Strafe)/)) {
+                            playerControlsParameters.physics[index].material.friction = .00001
+                            if (stickLA[index] == 'Flying') {
+                                speedDelta = deltaTime * playerControlsParameters.speed
+                            } else speedDelta = deltaTime * (playerControlsParameters.onfloor[index] ? playerControlsParameters.speed * speedOffset : 30 * speedOffset)
+                            playerControlsParameters.velocity[index].add(getForwardVector(index).multiplyScalar(speedDelta))
+                            copyVelocity(stickLA[index], index)
+                        }
+                        speedDelta = deltaTime * (playerControlsParameters.onfloor[index] ? playerControlsParameters.speed * speedOffset : 30 * speedOffset)
+                        if (stickLA[index].includes('Left')) {
+                            playerControlsParameters.physics[index].material.friction = .00001
+                            playerControlsParameters.velocity[index].add(getSideVector(index).multiplyScalar(-speedDelta))
+                            copyVelocity(stickLA[index], index)
+                        }
+                        if (stickLA[index].includes('Right')) {
+                            playerControlsParameters.physics[index].material.friction = .00001
+                            playerControlsParameters.velocity[index].add(getSideVector(index).multiplyScalar(speedDelta))
+                            copyVelocity(stickLA[index], index)
+                        }
+                        if (playerControlsParameters.onfloor[index] && jumpLD[index]) {
+                            jh = 1.5
+                            if (stickLA[index].includes('Backward')) {
+                                act = 'BackFlip'
+                            } else if (stickLA[index].match(/(Walking|Running|RunningFast)/)) {
+                                act = 'RunningForwardFlip'
+                            } else {
+                                act = 'JumpingUp'
+                                jh = 3
+                            }
+                            loadFBXAnim(act + '.fbx', engineParameters.scene.children[modelsParameters.meshIndex[index]], index, false, true)
+                            if (playedAnimation[index].includes(act)) {
+                                setTimeout(function() {
+                                    if (playedAnimation[index].includes(stickLA[index])) {
+                                        playerControlsParameters.velocity[index].y += 1.6 * jh
+                                        playerControlsParameters.physics[index].velocity.y = playerControlsParameters.velocity[index].y
+                                    }
+                                }, 600)
+                                playerControlsParameters.onfloor[index] = false
+                                jumpLD[index] = null
+                            }
+                        }
+                    }
+                } else playerSlowDown(index, 7)
+            }
+        }
+
+        function playerSlowDown(index, v) {
+            playerControlsParameters.physics[index].material.friction = .4
+            playerControlsParameters.velocity[index].x /= v
+            playerControlsParameters.velocity[index].z /= v
+            copyVelocity(stickLA[index], index)
+        }
+        // Copy velocity
+        function copyVelocity(actName, index) {
+            if (playedAnimation[index].includes(actName)) {
+                playerControlsParameters.physics[index].velocity.x = playerControlsParameters.velocity[index].x
+                playerControlsParameters.physics[index].velocity.z = playerControlsParameters.velocity[index].z
+            }
+        }
+        // ==== ANIMATION LOADERS ====
+        // Load FBX animations
+        async function loadFBXAnim(actName, mesh, index, au0, l0) {
+            if (playerControlsParameters.alive[index]) {
+                if (index == playerParameters.index) actName = playAnimSounds(actName)
+                if (!playedAnimation[index].includes(actName)) playedAnimation[index] += actName
+                if (!isFirstPerson(index) || au0) {
+                    const anim = returnConstant('animation', playerControlsParameters.model[index])
+                    anim.load(actName, async function(anim) {
+                        loadLocalAnim(actName, anim, mesh, index, au0, l0)
+                    })
+                }
+            }
+        }
+        // Loca local animation
+        function loadLocalAnim(actName, anim, mesh, index, au0, l0) {
+            let act, idle
+            if (recyleAct[index] + '.fbx' != actName) {
+                recyleAct[index] = prevAct[index]
+                let mixer = returnConstant('loadAnimation', mesh)
+                mixer.addEventListener('finished', function() {
+                    act = playArtificialBehaviours(index, 'mixer')
+                    if (act != 'none') {
+                        prevAct[index] = act
+                        loadFBXAnim(prevAct[index] + '.fbx', mesh, index, false, true)
+                    }
+                    return
+                })
+                if (au0) {
+                    modelsParameters.playerMixers.push(mixer)
+                    recyleAct.push(actName)
+                } else modelsParameters.playerMixers[index] = mixer
+                idle = mixer.clipAction(anim.animations[0])
+            } else idle = modelsParameters.playerMixers[index].clipAction(anim.animations[0])
+            idle.reset()
+            if (l0) idle.setLoop(returnConstant('loopOnce'))
+            idle.clampWhenFinished = true
+            idle.fadeIn(standIdle.includes(prevAct[index]) || playerHit.includes(prevAct[index]) ? .96 : .5).play()
+        }
+        // ==== LOAD MESH ====
+        // Load player mesh
+        function loadPlayerMesh(fp, fn, g0, x, y, z, o, sc, index, ht, kg, re, si, of) {
+            if (playerModelLink != undefined && playerParameters.index == index) {
+                fp = ''
+                fn = 'https://' + playerModelLink
+            }
+            if (index == playerParameters.index) {
+                playerControlsParameters.player.rotation.y = o
+                loadOrbitControl(x, y + 1.8, z)
+            }
+            if (g0) {
+                loadGlft(fp, fn, x, y, z, o, sc, false, index, 'player', ht, kg, null, false, re, si, of, false)
+            } else loadFBX(fp, fn, x, y, z, o, sc, index, 'player', ht, kg, null, false, re, si, of, false)
+        }
+        // ==== MODEL LOADERS ====
+        // Load FBX model
+        async function loadFBX(fp, fn, x, y, z, o, sc, index, typ, ht, kg, pd, cu, re, si, of, cm, ds, obID, pn) {
+            let heightMap = getHeightMapJS(typ, pd)
+            modelsParameters.next = true
+            if (heightMap !== null) {
+                for (let tp0 = 0; tp0 < x.length; tp0++) {
+                    if (isObjectRange(ds, x[tp0], y[tp0], z[tp0])) {
+                        terrain = await generateTerrain(heightMap, kg[tp0])
+                        await loadModelMesh(fp, fn, terrain, null, x[tp0], y[tp0], z[tp0], o[tp0], sc[tp0], index, 'heightmapJS', ht, kg[tp0], pd, cu, re, si, of, cm, obID[tp0], pn)
+                    } else getBlankArchive(fn, typ, x[tp0], y[tp0], z[tp0], o[tp0], null, obID[tp0])
+                }
+            } else {
+                if (x.length > 0) {
+                    for (let ob0 = 0; ob0 < x.length; ob0++) {
+                        if (isObjectRange(ds, x[ob0], y[ob0], z[ob0])) {
+                            await opLoadFBX(fp, fn, x[ob0], y[ob0], z[ob0], o[ob0], sc[ob0], index, typ, ht, kg[ob0], pd, cu, re, si, of, cm, obID[ob0], pn)
+                        } else getBlankArchive(fn, typ, x[ob0], y[ob0], z[ob0], o[ob0], null, obID[ob0])
+                    }
+                } else {
+                    if (isObjectRange(ds, x, y, z)) {
+                        await opLoadFBX(fp, fn, x, y, z, o, sc, index, typ, ht, kg, pd, cu, re, si, of, cm, obID, pn)
+                    } else getBlankArchive(fn, typ, x, y, z, o, null, obID)
+                }
+            }
+            if (modelsParameters.next) isLoaded()
+        }
+        // Load FBX model
+        function opLoadFBX(fp, fn, x, y, z, o, sc, index, typ, ht, kg, pd, cu, re, si, of, cm, obID, pn) {
+            let meshData = findModel(fn, typ)
+            fbx = meshData.mesh
+            if (!fbx) {
+                const loader = returnConstant('fbx', fp)
+                loader.load(fn, async function(fbx) {
+                        var clone = fbx,
+                            cl0 = fbx.clone(true)
+                        clone.uuid = cl0.uuid
+                        clone.id = cl0.id
+                        clone.animations = fbx.animations
+                        await loadModelMesh(fp, fn, clone, clone.animations[0], x, y, z, o, sc / 1000, index, typ, ht, kg, pd, cu, re, si, of, cm, obID, pn)
+                        fbx = clone = null
+                    },
+                    function(xhr) {
+                        showProgress(((playerParameters.parameters.length - modelsParameters.loaded - 1) / (playerParameters.parameters.length) + xhr.loaded / xhr.total / (playerParameters.parameters.length)) * 80 + 10 + '%', '#355c7d', 'Loading...', false)
+                    },
+                    function(err) {
+                        loadingError(fn)
+                    })
+            } else loadModelMesh(fp, fn, engineParameters.objectAnimation[meshData.index], fbx, x, y, z, o, sc / 1000, index, typ, ht, kg, pd, cu, re, si, of, cm, obID, pn)
+            return true
+        }
+        // Load glTF model
+        async function loadGlft(fp, fn, x, y, z, o, sc, gc0, index, typ, ht, kg, pd, cu, re, si, of, cm, ds, obID, pn) {
+            let heightMap = getHeightMapJS(typ, pd),
+                terrain, mesh
+            modelsParameters.next = true
+            if (heightMap !== null) {
+                for (let tp0 = 0; tp0 < x.length; tp0++) {
+                    if (isObjectRange(ds, x[tp0], y[tp0], z[tp0])) {
+                        terrain = await generateTerrain(heightMap, kg[tp0])
+                        await loadModelMesh(fp, fn, terrain, null, x[tp0], y[tp0], z[tp0], o[tp0], sc[tp0], index, 'heightmapJS', ht, kg[tp0], pd, cu, re, si, of, cm, obID[tp0], pn)
+                    } else getBlankArchive(fn, typ, x[tp0], y[tp0], z[tp0], o[tp0], null, obID[tp0])
+                }
+            } else {
+                if (x.length > 0) {
+                    for (let ob0 = 0; ob0 < x.length; ob0++) {
+                        if (isObjectRange(ds, x[ob0], y[ob0], z[ob0])) {
+                            await opLoadGlft(fp, fn, x[ob0], y[ob0], z[ob0], o[ob0], sc[ob0], gc0, index, typ, ht, kg[ob0], pd, cu, re, si, of, cm, obID[ob0], pn)
+                        } else {
+                            getBlankArchive(fn, typ, x[ob0], y[ob0], z[ob0], o[ob0], null, obID[ob0])
+                        }
+                    }
+                } else {
+                    if (isObjectRange(ds, x, y, z)) {
+                        await opLoadGlft(fp, fn, x, y, z, o, sc, gc0, index, typ, ht, kg, pd, cu, re, si, of, cm, obID, pn)
+                    } else getBlankArchive(fn, typ, x, y, z, o, null, obID)
+                }
+            }
+            if (modelsParameters.next) isLoaded()
+        }
+        // Load glTF model
+        async function opLoadGlft(fp, fn, x, y, z, o, sc, gc0, index, typ, ht, kg, pd, cu, re, si, of, cm, obID, pn) {
+            let meshData = findModel(fn, typ),
+                gA0
+            mesh = meshData.mesh
+            if (!mesh) {
+                const dracoLoader = returnConstant('draco')
+                const loader = returnConstant('gltf', fp)
+                loader.setDRACOLoader(dracoLoader)
+                loader.load(fn, async function(gltf) {
+                        if (gc0) {
+                            mesh = gltf.scene.children[0]
+                        } else mesh = gltf.scene
+                        await loadModelMesh(fp, fn, mesh, gltf.animations[0], x, y, z, o, sc / (gc0 ? 1000 : 1), index, typ, ht, kg, pd, cu, re, si, of, cm, obID, pn)
+                        mesh = gltf = null
+                    },
+                    function(xhr) {
+                        if (typ != 'heightmap') showProgress(((playerParameters.parameters.length - modelsParameters.loaded - 1) / (playerParameters.parameters.length) + xhr.loaded / xhr.total / (playerParameters.parameters.length)) * 80 + 10 + '%', '#355c7d', 'Loading...', false)
+                    },
+                    function(err) {
+                        loadingError(fn)
+                    })
+            } else await loadModelMesh(fp, fn, mesh, engineParameters.objectAnimation[meshData.index], x, y, z, o, sc / (gc0 ? 1000 : 1), index, typ, ht, kg, pd, cu, re, si, of, cm, obID, pn)
+            return true
+        }
+        // Check is object in range
+        function isObjectRange(ds, xR0, yR0, zR0) {
+            if (ds !== undefined) {
+                if (ds > getVectorDistance(playerControlsParameters.player.position.x, xR0, playerControlsParameters.player.position.z, zR0).distance && yR0 + ds > playerControlsParameters.player.position.y && yR0 - ds < playerControlsParameters.player.position.y) {
+                    modelsParameters.next = false
+                    return true
+                } else return false
+            } else return true
+        }
+        // Animate mesh
+        function animateMesh(mesh, gA0, typ) {
+            let mixer
+            if (typ.match(/(animesh|animated)/)) {
+                mixer = returnConstant('aniMatrix', mesh)
+                mixer.clipAction(gA0).play()
+            }
+            modelsParameters.objectMixers.push(mixer)
+        }
+        // Find model mesh
+        function findModel(fn, typ) {
+            if (typ.match(/(chassis|wheel|vehiclebody|objectmesh|animesh|object|animated|trimesh|polyhedron)/)) {
+                for (let fm0 = 0; fm0 < engineParameters.objectModel.length; fm0++) {
+                    try {
+                        if (engineParameters.objectModel[fm0] == fn) return {
+                            mesh: engineParameters.scene.children[modelsParameters.objMeshIndex[fm0]].clone(),
+                            index: fm0
+                        }
+                    } catch (err) {
+                        return false
+                    }
+                }
+            }
+            return false
+        }
+        // Function get heightMap JS
+        function getHeightMapJS(typ, pd) {
+            let heightMap
+            if (typ == 'heightmap' && terrainJS !== undefined) {
+                for (let gh0 = 0; gh0 < terrainJS.length; gh0++) {
+                    if (terrainJS[gh0].name == fn && terrainJS[gh0].pointDistance == pd) {
+                        return terrainJS[gh0]
+                    }
+                }
+            }
+            return null
+        }
+        // Load terrain heightmap
+        async function loadTerrainHeightmap(body, x, y, z, kg, of) {
+            if (of === undefined || of == null || of == '') of = 0
+            let offset = {
+                x: body.position.x,
+                y: body.position.y + of,
+                z: body.position.z
+            }
+            body.position.x += x
+            body.position.y += y
+            body.position.z += z
+            if (kg > 0) {
+                body.angularDamping = true
+                engineParameters.objectMass.push(body.mass)
+                engineParameters.objectPhysics.push(body)
+                engineParameters.objectOffset.push(offset)
+            }
+            return body
+        }
+        // Load model mesh
+        async function loadModelMesh(fp, fn, mesh, gA0, x, y, z, o, sc, index, typ, ht, kg, pd, cu, re, si, of, cm, obID, pn) {
+            let act, bo0, op0, pc0, pc1
+            if (typ != 'player') {
+                if (index == null) {
+                    index = getBlankArchive(fn, typ, x, y, z, o, true, obID)
+                } else if (index == false) index = null
+            }
+            if (typ.match(/(heightmap|heightmapJS)/)) {
+                if (cm) {
+                    $('#loadingFill').css('width', '100%')
+                    setTimeout(function() {
+                        $('#loadingBar').fadeOut('slow')
+                    }, 1200)
+                    bo0 = returnConstant('boundingBox', mesh.clone())
+                    op0 = getObjectPosition(modelsParameters.meshesData[playerParameters.index].position.x, modelsParameters.meshesData[playerParameters.index].position.z, bo0.z + .3, modelsParameters.meshesData[playerParameters.index].rotation.y)
+                    x = op0.x
+                    z = op0.z
+                    y = modelsParameters.meshesData[playerParameters.index].position.y + bo0.y
+                    addMyModel(fn, x, y, z, 0, sc, typ, kg)
+                }
+                if (typ == 'heightmap') {
+                    body = await loadTerrainHeightmap(await loadMeshHeightfield(mesh, fn, pd, kg), x, y, z, kg, of)
+                } else body = await loadTerrainHeightmap(mesh, x, y, z, kg, of)
+                if (obID === undefined) {
+                    body.id = getObjectID()
+                } else if (index != null) engineParameters.archive[index].bodyIndex = body.id = getObidIndex(obID)
+                engineParameters.world.addBody(body)
+                objectCollision(body)
+            } else {
+                try {
+                    mesh.traverse(child => {
+                        if (child.isMesh) {
+                            if (si > 0) {
+                                child.material.flatShading = true
+                                child.geometry = returnConstant('SimplifyModifier').modify(child.geometry, Math.floor(child.geometry.attributes.position.count * si))
+                            }
+                            engineParameters.csm.setupMaterial(child.material)
+                            child.castShadow = true
+                            child.receiveShadow = true
+                            if (!cu) child.frustumCulled = false
+                            if (child.material.map) child.material.map.anisotropy = engineParameters.maxAnisotropy
+                        }
+                        if (child.isLight) {
+                            child.castShadow = true
+                            child.shadow.bias = -.003
+                            child.shadow.mapSize.width = 2048
+                            child.shadow.mapSize.height = 2048
+                        }
+                    })
+                } catch (err) {
+                    mesh = gA0 = null
+                    return
+                }
+                mesh.scale.set(sc, sc, sc)
+                if (typ == 'player') {
+                    mesh.visible = false
+                    mesh.position.set(x, y, z)
+                    mesh.rotation.y = o
+                    if (index == playerParameters.index) {
+                        playerParameters.path = fp
+                        playerParameters.model = fn
+                        mesh.name = myUserID.uid
+                    } else mesh.name = onlineMultiplayer.uid[index]
+                    ht = returnConstant('boundingBox', mesh).y * (!fn.includes('https://') || fn.includes('firebasestorage.googleapis.com') ? 2000 : 2)
+                    ht = parseFloat(ht)
+                    kg = parseFloat(kg)
+                    of = parseFloat(of)
+                    var playerCapsule = getCapsule(index, kg, ht, x, y, z)
+                    let mS0 = {
+                        uuid: mesh.uuid,
+                        name: mesh.name,
+                        position: mesh.position,
+                        rotation: mesh.rotation,
+                        quaternion: mesh.quaternion,
+                    }
+                    if (re) {
+                        engineParameters.scene.children[modelsParameters.meshIndex[index]] = mesh
+                        modelsParameters.meshesData[index] = mS0
+                        if (modelsParameters.driveVehicleIndex[index] != null) {
+                            recyleAct[index] = 'none'
+                            act = 'SittingIdle'
+                        } else act = 'FallingToLanding'
+                        engineParameters.world.removeBody(playerControlsParameters.physics[index])
+                        playerControlsParameters.physics[index] = playerCapsule
+                        engineParameters.world.addBody(playerCapsule)
+                        playerControlsParameters.model[index] = fn
+                        playerControlsParameters.height[index] = ht
+                        playerControlsParameters.mass[index] = kg
+                        playerControlsParameters.offset[index] = of
+                        playerControlsParameters.stunned[index] = false
+                        if (playerModelLink != null) lsSv(playerParameters.levelName + 'playerAvatar', '{"model":"' + playerModelLink + '","offset":"0"}')
+                        setTimeout(function() {
+                            $('#loadingFill').css('width', '100%')
+                            updateActivity('change')
+                            setTimeout(function() {
+                                $('#loadingBar').fadeOut('slow')
+                            }, 600)
+                        }, 1200)
+                    } else {
+                        engineParameters.scene.add(mesh)
+                        modelsParameters.meshesData.push(mS0)
+                        act = randomString(standIdle)
+                        playerControlsParameters.model.push(fn)
+                        playerControlsParameters.physics.push(playerCapsule)
+                        engineParameters.world.addBody(playerCapsule)
+                        playerControlsParameters.onfloor.push(true)
+                        playerControlsParameters.alive.push(true)
+                        playerControlsParameters.height.push(ht)
+                        playerControlsParameters.mass.push(playerCapsule.mass)
+                        playerControlsParameters.offset.push(of)
+                        playerControlsParameters.velocity.push(returnConstant('newVector'))
+                        playerControlsParameters.direction.push(returnConstant('newVector'))
+                        stickLA.push(act)
+                        stickLD.push('C')
+                        stickRD.push('C')
+                        jumpLD.push(false)
+                        prevAct.push(act)
+                        playedAnimation.push('')
+                        playerControlsParameters.stunned.push(false)
+                        playerControlsParameters.invertQuaternion.push(null)
+                        playerControlsParameters.mySeat.push(0)
+                        modelsParameters.driveVehicleIndex.push(null)
+                        playerControlsParameters.physics[index].addEventListener('collide', function(e) {
+                            try {
+                                pc0 = e.body.id
+                                if (isPlayersIndex(pc0) && playerControlsParameters.hitted == null) {
+                                    if (playerControlsParameters.alive[pc0]) {
+                                        playerSlowDown(pc0, 1.1)
+                                        playerControlsParameters.hitted = pc0
+                                        setTimeout(function() {
+                                            pc1 = playerControlsParameters.hitted
+                                            playerControlsParameters.hitted = null
+                                            act = playArtificialBehaviours(pc0, 'player')
+                                            if (prevAct[pc1] != act && act != 'none') {
+                                                prevAct[pc1] = act
+                                                loadFBXAnim(prevAct[pc1] + '.fbx', engineParameters.scene.children[modelsParameters.meshIndex[pc1]], pc1, false, true)
+                                            }
+                                        }, playerParameters.index == pc0 ? 600 : 10)
+                                    }
+                                }
+                            } catch (err) {}
+                        })
+                        playerCapsule.id = playerControlsParameters.physics.length - 1
+                    }
+                    updateMeshIndex()
+                    if (index == playerParameters.index) {
+                        createCameras(false)
+                        hideMyMesh()
+                    } else mesh.visible = true
+                    loadFBXAnim(act + '.fbx', mesh, index, !re, true)
+                } else {
+                    if (typ == 'terrain') {
+                        mesh.rotation.y = Math.PI / 180 * o
+                        if (index != null) engineParameters.archive[index].uuid = mesh.uuid
+                        engineParameters.scene.add(mesh)
+                        if (kg > 0) modelsParameters.objectMeshes.push({
+                            uuid: mesh.uuid
+                        })
+                        if (cm) {
+                            bo0 = returnConstant('boundingBox', mesh)
+                            op0 = getObjectPosition(modelsParameters.meshesData[playerParameters.index].position.x, modelsParameters.meshesData[playerParameters.index].position.z, bo0.z + .3, modelsParameters.meshesData[playerParameters.index].rotation.y)
+                            x = op0.x
+                            z = op0.z
+                            y = modelsParameters.meshesData[playerParameters.index].position.y + bo0.y
+                            mesh.position.set(x, y, z)
+                            addMyModel(fn, x, y, z, 0, sc, typ, kg)
+                        } else mesh.position.set(x, y, z)
+                        updateMeshIndex()
+                    } else {
+                        bo0 = returnConstant('boundingBox', mesh)
+                        mesh.rotation.x = Math.PI / 180 * o.x
+                        mesh.rotation.y = Math.PI / 180 * o.y
+                        mesh.rotation.z = Math.PI / 180 * o.z
+                        if (typ.match(/(objectmesh|animesh|object|animated|trimesh|polyhedron)/)) {
+                            let gPS = getPhysicsShape(fn, typ, mesh, sc, kg, bo0)
+                            try {
+                                object = gPS.object
+                            } catch (err) {
+                                return
+                            }
+                            object.addShape(gPS.shape)
+                            if (!typ.match(/(trimesh|polyhedron)/)) {
+                                if (index != null) engineParameters.archive[index].uuid = mesh.uuid
+                                if (kg > 0) modelsParameters.objectMeshes.push({
+                                    uuid: mesh.uuid
+                                })
+                                engineParameters.scene.add(mesh)
+                                animateMesh(mesh, gA0, typ)
+                            }
+                            if (typ != 'objectmesh' && typ != 'animesh' && kg > 0) {
+                                engineParameters.objectModel.push(fn)
+                                engineParameters.objectMass.push(object.mass)
+                                engineParameters.objectPhysics.push(object)
+                                engineParameters.objectOffset.push(null)
+                                engineParameters.objectAnimation.push(gA0)
+                            }
+                            if (cm) {
+                                op0 = getObjectPosition(modelsParameters.meshesData[playerParameters.index].position.x, modelsParameters.meshesData[playerParameters.index].position.z, bo0.z + .3, modelsParameters.meshesData[playerParameters.index].rotation.y)
+                                x = op0.x
+                                z = op0.z
+                                y = modelsParameters.meshesData[playerParameters.index].position.y + bo0.y
+                                o = modelsParameters.meshesData[playerParameters.index].rotation
+                                if (typ != 'objectmesh' && typ != 'animesh') {
+                                    object.position.set(x, y, z)
+                                    object.quaternion.copy(modelsParameters.meshesData[playerParameters.index].quaternion)
+                                } else {
+                                    mesh.position.set(x, y, z)
+                                    mesh.quaternion.copy(modelsParameters.meshesData[playerParameters.index].quaternion)
+                                }
+                                addMyModel(fn, x, y, z, {
+                                    x: o.x * 180 / Math.PI,
+                                    y: o.y * 180 / Math.PI,
+                                    z: o.z * 180 / Math.PI
+                                }, sc * 1000, typ, kg)
+                            } else {
+                                mesh.position.set(x, y, z)
+                                object.position.set(x, y, z)
+                                object.quaternion.copy(mesh.quaternion)
+                            }
+                            if (typ != 'objectmesh' && typ != 'animesh') {
+                                if (obID === undefined) {
+                                    object.id = getObjectID()
+                                } else if (index != null) engineParameters.archive[index].bodyIndex = object.id = getObidIndex(obID)
+                                engineParameters.world.addBody(object)
+                                objectCollision(object)
+                            }
+                            updateMeshIndex()
+                        }
+                        if (typ.match(/(chassis|wheel|vehiclebody)/)) {
+                            let chassisShape
+                            if (modelsParameters.vehicleGroup === undefined) modelsParameters.vehicleGroup = genRan(charString, 7)
+                            engineParameters.archive[index].group = modelsParameters.vehicleGroup
+                            mesh.name = typ
+                            mesh.position.set(x, y, z)
+                            if (typ.match(/(wheel)/)) {
+                                modelsParameters.wheelSize = bo0.y
+                                modelsParameters.wheelMeshes = []
+                                engineParameters.archive[index].uuid = []
+                                for (let aW0 = 0; aW0 < 4; aW0++) {
+                                    modelsParameters.wheelMeshes.push(mesh.clone())
+                                    engineParameters.archive[index].uuid.push(modelsParameters.wheelMeshes[aW0].uuid)
+                                }
+                            }
+                            if (typ.match(/(vehiclebody)/)) {
+                                let gPS = getPhysicsShape(fn, 'polyhedron', mesh, sc, kg, bo0)
+                                try {
+                                    modelsParameters.vehicleBody = {
+                                        shape: gPS.shape,
+                                        kg: kg,
+                                        of: of,
+                                        obID: obID,
+                                        index: index,
+                                        box: bo0
+                                    }
+                                } catch (err) {
+                                    return
+                                }
+                            }
+                            if (typ.match(/(chassis)/)) {
+                                modelsParameters.chassisMesh = mesh.clone()
+                                engineParameters.archive[index].uuid = modelsParameters.chassisMesh.uuid
+                            }
+                            if (modelsParameters.chassisMesh !== undefined && modelsParameters.wheelMeshes !== undefined && modelsParameters.vehicleBody !== undefined) {
+                                createVehicle(modelsParameters.vehicleBody.index, modelsParameters.chassisMesh, modelsParameters.vehicleBody.shape, modelsParameters.wheelMeshes, modelsParameters.vehicleBody.box, modelsParameters.wheelSize, modelsParameters.vehicleBody.kg, modelsParameters.vehicleBody.of, modelsParameters.vehicleBody.obID)
+                                modelsParameters.chassisMesh = modelsParameters.wheelMeshes = modelsParameters.vehicleBody = modelsParameters.vehicleGroup = undefined
+                            }
+                        }
+                    }
+                }
+            }
+            if (!modelsParameters.next) {
+                modelsParameters.next = null
+                isLoaded()
+            }
+            mesh = gA0 = null
+        }
+        // Hide my mesh if first person
+        function hideMyMesh() {
+            if (engineParameters.cameraIndex == 1) {
+                engineParameters.scene.children[modelsParameters.meshIndex[playerParameters.index]].visible = false
+            } else engineParameters.scene.children[modelsParameters.meshIndex[playerParameters.index]].visible = true
+        }
+        // Update mesh indexes
+        function updateMeshIndex() {
+            if (modelsParameters.complete) {
+                modelsParameters.meshIndex = []
+                for (let uD0 = 0; uD0 < modelsParameters.meshesData.length; uD0++) {
+                    modelsParameters.meshIndex.push(getMeshIndex(modelsParameters.meshesData[uD0].uuid))
+                }
+                modelsParameters.objMeshIndex = []
+                for (let uD0 = 0; uD0 < modelsParameters.objectMeshes.length; uD0++) {
+                    modelsParameters.objMeshIndex.push(getMeshIndex(modelsParameters.objectMeshes[uD0].uuid))
+                }
+                modelsParameters.chassisMeshIndex = []
+                for (let uD0 = 0; uD0 < modelsParameters.chassisMeshes.length; uD0++) {
+                    modelsParameters.chassisMeshIndex.push(getMeshIndex(modelsParameters.chassisMeshes[uD0].uuid))
+                }
+                for (let uD0 = 0; uD0 < engineParameters.archive.length; uD0++) engineParameters.archive[uD0].objectIndex = undefined
+                for (let uD0 = 0; uD0 < engineParameters.archive.length; uD0++) {
+                    for (let uD1 = 0; uD1 < engineParameters.world.bodies.length; uD1++) {
+                        if (engineParameters.world.bodies[uD1].id == uD0 + 10000) {
+                            engineParameters.archive[uD0].objectIndex = engineParameters.world.bodies[uD1].index
+                        }
+                    }
+                }
+            }
+        }
+        // Get obID index
+        function getObidIndex(obID) {
+            for (let oI0 = 0; oI0 < engineParameters.archive.length; oI0++) {
+                if (engineParameters.archive[oI0].obID == obID) return oI0 + 10000
+            }
+        }
+        // Get object id
+        function getObjectID() {
+            return engineParameters.objectSounds.length + 9999
+        }
+        // Compensate force
+        function compensateForce(cPos, cVel, cRt0) {
+            cPos.x += cVel.x * cRt0
+            cPos.y += cVel.y * cRt0
+            cPos.z += cVel.z * cRt0
+            return cPos
+        }
+        // Save mesh index
+        function getMeshIndex(uuid, name) {
+            for (let mI1 = 0; mI1 < engineParameters.scene.children.length; mI1++) {
+                if (uuid == engineParameters.scene.children[mI1].uuid && (name == engineParameters.scene.children[mI1].name || name === undefined)) return mI1
+            }
+        }
+        // Get blank archive
+        function getBlankArchive(fn, typ, x, y, z, o, c0, obID) {
+            if (typ != 'player') {
+                for (let ar0 = 0; ar0 < engineParameters.archive.length; ar0++) {
+                    if (engineParameters.archive[ar0].obID == obID) {
+                        let n = engineParameters.archive[ar0].sn
+                        let un1 = engineParameters.archive[ar0].index
+                        engineParameters.archive[ar0].position = {
+                            x: playerParameters.parameters[n].x[un1],
+                            y: playerParameters.parameters[n].y[un1],
+                            z: playerParameters.parameters[n].z[un1],
+                            o: playerParameters.parameters[n].o[un1]
+                        }
+                        engineParameters.archive[ar0].loaded = c0
+                        return ar0
+                    }
+                }
+                return null
+            }
+        }
+        // Delete array
+        function deleteArray(aObj, aO0) {
+            delete aObj[aO0]
+            return aObj.filter(function(aO0) {
+                return aO0 !== null
+            })
+        }
+        // Register models
+        function registerModel(n) {
+            let pos, or, obID
+            playerParameters.parameters[n].obID = []
+            for (let cA0 = 0; cA0 < playerParameters.parameters[n].x.length; cA0++) {
+                obID = genRan(charString, 9)
+                playerParameters.parameters[n].obID.push(obID)
+                engineParameters.archive.push({
+                    obID: obID,
+                    model: playerParameters.parameters[n].name,
+                    sn: n,
+                    index: cA0,
+                    loaded: false,
+                    type: playerParameters.parameters[n].type,
+                    proximity: playerParameters.parameters[n].ds,
+                    near: playerParameters.parameters[n].px,
+                    objectIndex: undefined
+                })
+            }
+        }
+        // Update models
+        function updateModels() {
+            let n, un1, group, nV0
+            engineParameters.updateObjectsBusy = true
+            for (let un0 = 0; un0 < engineParameters.archive.length; un0++) {
+                if (engineParameters.archive[un0].position !== undefined) {
+                    if (isObjectRange(engineParameters.archive[un0].proximity, engineParameters.archive[un0].position.x, engineParameters.archive[un0].position.y, engineParameters.archive[un0].position.z)) {
+                        if (!engineParameters.archive[un0].loaded || engineParameters.archive[un0].loaded == null) {
+                            n = engineParameters.archive[un0].sn
+                            un1 = engineParameters.archive[un0].index
+                            if (engineParameters.loadVehicleName !== undefined) {
+                                if (engineParameters.archive[un0].type.match(/(vehiclebody|wheel)/) && !playerParameters.parameters[n].name.includes(engineParameters.loadVehicleName)) continue
+                                if (engineParameters.archive[un0].type == 'chassis') continue
+                            } else if (engineParameters.archive[un0].type == 'chassis') engineParameters.loadVehicleName = playerParameters.parameters[n].name.replace('chassis', '')
+                            loadObject(playerParameters.parameters[n].loader, 'assets/models/objects/', playerParameters.parameters[n].name + '.' + playerParameters.parameters[n].loader, engineParameters.archive[un0].position.x, engineParameters.archive[un0].position.y, engineParameters.archive[un0].position.z, engineParameters.archive[un0].position.o, playerParameters.parameters[n].s[un1], engineParameters.archive[un0].loaded, engineParameters.archive[un0].type, playerParameters.parameters[n].kg[un1], playerParameters.parameters[n].of, false, playerParameters.parameters[n].ds, playerParameters.parameters[n].obID[un1], n)
+                            engineParameters.archive[un0].loaded = true
+                        } else if (engineParameters.archive[un0].type == 'vehiclebody') {
+                            if (isObjectRange(engineParameters.archive[un0].near, engineParameters.archive[un0].position.x, engineParameters.archive[un0].position.y, engineParameters.archive[un0].position.z)) nV0 = un0
+                        }
+                    } else if (engineParameters.archive[un0].loaded) {
+                        if (engineParameters.archive[un0].group !== undefined) {
+                            if (engineParameters.archive[un0].type == 'vehiclebody') {
+                                if (modelsParameters.driveVehicleIndex[playerParameters.index] != null) {
+                                    if (modelsParameters.vehicle[modelsParameters.driveVehicleIndex[playerParameters.index]].chassisBody.id != engineParameters.archive[un0].bodyIndex) {
+                                        group = engineParameters.archive[un0].group
+                                        continue
+                                    }
+                                } else {
+                                    group = engineParameters.archive[un0].group
+                                    continue
+                                }
+                            }
+                        } else unloadModel(engineParameters.archive[un0].type, un0)
+                    }
+                }
+            }
+            nearVehicle(nV0)
+            if (group !== undefined) {
+                for (let un0 = 0; un0 < engineParameters.archive.length; un0++) {
+                    if (engineParameters.archive[un0].group == group) {
+                        unloadModel(engineParameters.archive[un0].type, un0)
+                    }
+                }
+            }
+            engineParameters.updateObjectsBusy = undefined
+        }
+        // Unload model
+        function unloadModel(rtp, re0) {
+            updateMeshIndex()
+            if (rtp == 'player') {
+                engineParameters.scene.remove(engineParameters.scene.children[modelsParameters.meshIndex[re0]])
+                modelsParameters.meshesData = deleteArray(modelsParameters.meshesData, re0)
+                engineParameters.world.removeBody(playerControlsParameters.physics[re0])
+                playerControlsParameters.physics = deleteArray(playerControlsParameters.physics, re0)
+                playerControlsParameters.model = deleteArray(playerControlsParameters.model, re0)
+                playerControlsParameters.onfloor = deleteArray(playerControlsParameters.onfloor, re0)
+                playerControlsParameters.alive = deleteArray(playerControlsParameters.alive, re0)
+                playerControlsParameters.height = deleteArray(playerControlsParameters.height, re0)
+                playerControlsParameters.mass = deleteArray(playerControlsParameters.mass, re0)
+                playerControlsParameters.offset = deleteArray(playerControlsParameters.offset, re0)
+                playerControlsParameters.velocity = deleteArray(playerControlsParameters.velocity, re0)
+                playerControlsParameters.direction = deleteArray(playerControlsParameters.direction, re0)
+                playerControlsParameters.stunned = deleteArray(playerControlsParameters.stunned, re0)
+                playerControlsParameters.invertQuaternion = deleteArray(playerControlsParameters.invertQuaternion, re0)
+                playerControlsParameters.mySeat = deleteArray(playerControlsParameters.mySeat, re0)
+                modelsParameters.playerMixers = deleteArray(modelsParameters.playerMixers, re0)
+                modelsParameters.driveVehicleIndex = deleteArray(modelsParameters.driveVehicleIndex, re0)
+                stickLA = deleteArray(stickLA, re0)
+                stickLD = deleteArray(stickLD, re0)
+                stickRD = deleteArray(stickRD, re0)
+                jumpLD = deleteArray(jumpLD, re0)
+                prevAct = deleteArray(prevAct, re0)
+                playedAnimation = deleteArray(playedAnimation, re0)
+            } else if (engineParameters.archive[re0].proximity !== undefined) {
+                // Remove mesh
+                if (rtp.match(/(chassis|wheel)/)) {
+                    if (engineParameters.archive[re0].uuid !== undefined) {
+                        let mesh
+                        if (rtp.match(/(wheel)/)) {
+                            for (let rm0 = 0; rm0 < engineParameters.archive[re0].uuid.length; rm0++) {
+                                mesh = engineParameters.scene.getObjectByProperty('uuid', engineParameters.archive[re0].uuid[rm0])
+                                engineParameters.scene.remove(mesh)
+                            }
+                        } else {
+                            mesh = engineParameters.scene.getObjectByProperty('uuid', engineParameters.archive[re0].uuid)
+                            engineParameters.scene.remove(mesh)
+                        }
+                        if (mesh != null && mesh !== undefined) {
+                            let o = {
+                                x: mesh.quaternion.x * 180 / Math.PI,
+                                y: mesh.quaternion.y * 180 / Math.PI,
+                                z: mesh.quaternion.z * 180 / Math.PI
+                            }
+                            engineParameters.archive[re0].position = {
+                                x: mesh.position.x,
+                                y: mesh.position.y,
+                                z: mesh.position.z,
+                                o: o
+                            }
+                        }
+                        engineParameters.archive = deleteArray(engineParameters.archive, 'uuid')
+                    }
+                }
+                // Remove bodies
+                if (rtp.match(/(objectmesh|animesh|object|animated|terrain)/)) {
+                    for (let rm0 = 0; rm0 < modelsParameters.objectMeshes.length; rm0++) {
+                        if (modelsParameters.objectMeshes[rm0].uuid == engineParameters.archive[re0].uuid) {
+                            modelsParameters.objectMeshes = deleteArray(modelsParameters.objectMeshes, rm0)
+                        }
+                    }
+                    engineParameters.scene.remove(engineParameters.scene.getObjectByProperty('uuid', engineParameters.archive[re0].uuid))
+                }
+                if (rtp.match(/(vehiclebody)/)) {
+                    let eI0
+                    for (let re1 = 0; re1 < engineParameters.world.bodies.length; re1++) {
+                        if (engineParameters.archive[re0].vehicleBodies !== undefined) {
+                            for (let re2 = 0; re2 < engineParameters.archive[re0].vehicleBodies.length; re2++) {
+                                if (engineParameters.world.bodies[re1].id == engineParameters.archive[re0].vehicleBodies[re2]) {
+                                    let body = engineParameters.world.bodies[re1]
+                                    engineParameters.world.removeBody(body)
+                                }
+                            }
+                            continue
+                        }
+                    }
+                }
+                if (rtp.match(/(object|animated|trimesh|polyhedron|heightmap)/)) {
+                    for (let rm0 = 0; rm0 < engineParameters.objectPhysics.length; rm0++) {
+                        if (engineParameters.objectPhysics[rm0].id == engineParameters.archive[re0].bodyIndex) {
+                            if (rtp != 'heightmap') {
+                                engineParameters.objectModel = deleteArray(engineParameters.objectModel, rm0)
+                                engineParameters.objectAnimation = deleteArray(engineParameters.objectAnimation, rm0)
+                            }
+                            engineParameters.objectMass = deleteArray(engineParameters.objectMass, rm0)
+                            engineParameters.objectPhysics = deleteArray(engineParameters.objectPhysics, rm0)
+                            engineParameters.objectOffset = deleteArray(engineParameters.objectOffset, rm0)
+                            modelsParameters.objectMixers = deleteArray(modelsParameters.objectMixers, rm0)
+                        }
+                    }
+                    for (let re1 = 0; re1 < engineParameters.world.bodies.length; re1++) {
+                        if (engineParameters.world.bodies[re1].id == engineParameters.archive[re0].bodyIndex) {
+                            let body = engineParameters.world.bodies[re1]
+                            let o = rtp.match(/(terrain|heightmap)/) ? body.quaternion.y * 180 / Math.PI : {
+                                x: body.quaternion.x * 180 / Math.PI,
+                                y: body.quaternion.y * 180 / Math.PI,
+                                z: body.quaternion.z * 180 / Math.PI
+                            }
+                            if (playerParameters.parameters[engineParameters.archive[re0].sn].kg[engineParameters.archive[re0].index] > 0 && rtp != 'heightmap') engineParameters.archive[re0].position = {
+                                x: body.position.x,
+                                y: body.position.y,
+                                z: body.position.z,
+                                o: o
+                            }
+                            if (rtp == 'heightmap') engineParameters.archive[re0].position.y = body.position.y
+                            engineParameters.world.removeBody(body)
+                            continue
+                        }
+                    }
+                }
+                engineParameters.archive[re0].loaded = null
+            }
+            updateMeshIndex()
+            return true
+        }
+        // Get physics shape
+        function getPhysicsShape(fn, typ, mesh, sc, kg, bo0) {
+            if (fn.match(/(fbx)/) != null && typ.match(/(trimesh|polyhedron)/)) {
+                setTimeout(function() {
+                    showDialog('gltf.png', 'Unable to load ' + typ + ' model, because the file format is not a gltf model', '', 'Dismiss')
+                }, 3600)
+                return
+            } else {
+                let geometry, object = returnConstant('body', {
+                    mass: kg,
+                    material: engineParameters.genericMaterial
+                })
+                if (typ.match(/(trimesh|polyhedron)/)) {
+                    if (mesh.children[0] !== undefined) mesh = mesh.children[0]
+                    if (mesh.geometry !== undefined) {
+                        geometry = mesh.geometry
+                        geometry.deleteAttribute('normal')
+                        geometry.deleteAttribute('uv')
+                        geometry = returnConstant('bufferGeometryUtils', geometry)
+                        geometry.computeVertexNormals()
+                        geometry.computeBoundingBox()
+                        if (typ.match(/(trimesh)/)) {
+                            geometry.scale(sc, sc, sc)
+                            return {
+                                object: object,
+                                shape: returnConstant('trimesh', {
+                                    vertices: geometry.attributes.position.array,
+                                    faces: geometry.getIndex().array
+                                })
+                            }
+                        } else {
+                            geometry.scale(sc, sc, sc)
+                            geometry.setAttribute('position', geometry.getAttribute('position'))
+                            let position = geometry.attributes.position.array
+                            let geomFaces = geometry.index.array
+                            let points = []
+                            for (let cI0 = 0; cI0 < position.length; cI0 += 3) points.push(returnConstant('cannonVec3', {
+                                x: position[cI0],
+                                y: position[cI0 + 1],
+                                z: position[cI0 + 2]
+                            }))
+                            let faces = []
+                            for (let cI0 = 0; cI0 < geomFaces.length; cI0 += 3) faces.push([geomFaces[cI0], geomFaces[cI0 + 1], geomFaces[cI0 + 2]])
+                            return {
+                                object: object,
+                                shape: returnConstant('convexPolyhedron', {
+                                    vertices: points,
+                                    faces
+                                })
+                            }
+                        }
+                    }
+                }
+                return {
+                    object: object,
+                    shape: returnConstant('box', bo0)
+                }
+            }
+        }
+        // Get object position
+        function getObjectPosition(x, z, oD0, oA0) {
+            oA0 = normalAngle(360 - oA0)
+            return {
+                x: oD0 * Math.cos(oA0) + x,
+                z: oD0 * Math.sin(oA0) + z
+            }
+        }
+        // ==== VEHICLE ====
+        // Create vehicle
+        function createVehicle(index, chassisMesh, chassisShape, wheelMeshes, cB0, wR0, kg, of, obID) {
+            engineParameters.loadVehicleName = undefined
+            engineParameters.acceleration = of.ac
+            let chassisBody = returnConstant('body', {
+                mass: kg,
+                material: createPhysicsMaterial(.05, 0)
+            })
+            chassisBody.addShape(chassisShape)
+            chassisBody.quaternion.copy(chassisMesh.quaternion)
+            chassisBody.position.set(chassisMesh.position.x, chassisMesh.position.y, chassisMesh.position.z)
+            engineParameters.archive[index].bodyIndex = chassisBody.id = getObidIndex(obID)
+            let vehicleBodies = [chassisBody.id]
+            let vehicle = returnConstant('raycastVehicle', {
+                chassisBody
+            })
+            let wheelOptions = {
+                radius: wR0,
+                directionLocal: returnConstant('cannonVec3', {
+                    x: 0,
+                    y: -1,
+                    z: 0
+                }),
+                suspensionStiffness: 30,
+                suspensionRestLength: .3,
+                frictionSlip: 1.4,
+                dampingRelaxation: 2.3,
+                dampingCompression: 4.4,
+                maxSuspensionForce: 100000,
+                rollInfluence: .5,
+                axleLocal: returnConstant('cannonVec3', {
+                    x: 0,
+                    y: 0,
+                    z: 1
+                }),
+                chassisConnectionPointLocal: returnConstant('cannonVec3', {
+                    x: -1,
+                    y: 0,
+                    z: 1
+                }),
+                maxSuspensionTravel: .3,
+                customSlidingRotationalSpeed: -30,
+                useCustomSlidingRotationalSpeed: true,
+            }
+            engineParameters.scene.add(chassisMesh)
+            for (let wH0 = 0; wH0 < 4; wH0++) {
+                wheelOptions.chassisConnectionPointLocal.set(wH0 < 2 ? -of.xF : of.xR, wH0 < 2 ? of.yL : of.yR, wH0 % 2 == 0 ? -of.zL : of.zR)
+                vehicle.addWheel(wheelOptions)
+                if (wH0 % 2 == 0) {
+                    ['x', 'y', 'z'].forEach(axis => wheelMeshes[wH0].scale[axis] *= -1)
+                }
+                engineParameters.scene.add(wheelMeshes[wH0])
+            }
+            updateMeshIndex()
+            vehicle.addToWorld(engineParameters.world)
+            let wheelBodies = []
+            let wheelMaterial = returnConstant('material', 'wheel')
+            vehicle.wheelInfos.forEach((wheel) => {
+                let wheelBody = returnConstant('body', {
+                    mass: 0,
+                    type: returnConstant('kinematic'),
+                    collisionFilterGroup: 0,
+                    material: wheelMaterial,
+                })
+                wheelBody.id += 999999
+                vehicleBodies.push(wheelBody.id)
+                wheelBody.addShape(returnConstant('sphere', wR0), returnConstant('vec3zero'), returnConstant('quaternion').setFromAxisAngle(returnConstant('cannonVec3', {
+                    x: 1,
+                    y: 0,
+                    z: 0
+                }), Math.PI / 2))
+                wheelBodies.push(wheelBody)
+                engineParameters.world.addBody(wheelBody)
+            })
+            engineParameters.archive[index].vehicleBodies = vehicleBodies
+            engineParameters.world.addEventListener('postStep', () => {
+                for (let wH0 = 0; wH0 < vehicle.wheelInfos.length; wH0++) {
+                    vehicle.updateWheelTransform(wH0)
+                    let transform = vehicle.wheelInfos[wH0].worldTransform
+                    let wheelBody = wheelBodies[wH0]
+                    wheelBody.position.copy(transform.position)
+                    wheelBody.quaternion.copy(transform.quaternion)
+                    wheelMeshes[wH0].position.copy(wheelBody.position)
+                    wheelMeshes[wH0].quaternion.copy(wheelBody.quaternion)
+                }
+                chassisMesh.position.copy(chassisBody.position)
+                chassisMesh.quaternion.copy(chassisBody.quaternion)
+                chassisMesh.translateOnAxis(returnConstant('vector3', {
+                    x: 0,
+                    y: 0,
+                    z: 1
+                }), 0)
+                let o = {
+                    x: chassisBody.quaternion.x * 180 / Math.PI,
+                    y: chassisBody.quaternion.y * 180 / Math.PI,
+                    z: chassisBody.quaternion.z * 180 / Math.PI
+                }
+                engineParameters.archive[index].position = {
+                    x: chassisBody.position.x,
+                    y: chassisBody.position.y,
+                    z: chassisBody.position.z,
+                    o: o
+                }
+            })
+            engineParameters.world.addContactMaterial(returnConstant('contactMaterial',
+                [wheelMaterial, engineParameters.genericMaterial, {
+                    friction: 0.9,
+                    restitution: 0,
+                    contactEquationStiffness: 1000,
+                }]
+            ))
+            objectCollision(chassisBody)
+            if (engineParameters.archive[index].vehicleIndex === undefined) {
+                modelsParameters.chassisMeshes.push({
+                    uuid: chassisMesh.uuid
+                })
+                engineParameters.archive[index].vehicleIndex = modelsParameters.vehicle.length
+                modelsParameters.vehicle.push(vehicle)
+                modelsParameters.vehicleMotor.push({
+                    gear: 1,
+                    forwardForce: 1500,
+                    reverseForce: 500,
+                    brakeForce: 50,
+                    steerForce: .01,
+                    stickLY: 0,
+                    stickRX: 0
+                })
+                modelsParameters.driveAnchor.push(returnConstant('object3D'))
+                modelsParameters.driveSeat.push([])
+                modelsParameters.driveDoor.push([])
+                modelsParameters.isOccupied.push([])
+                for (let cS0 = 0; cS0 < of.seat.length; cS0++) {
+                    let driveSeat = returnConstant('object3D')
+                    let driveDoor = returnConstant('object3D')
+                    driveSeat.position.set(of.seat[cS0].dx, of.seat[cS0].dy, of.seat[cS0].dz)
+                    driveDoor.position.set(of.seat[cS0].dx, of.seat[cS0].dy, of.seat[cS0].do)
+                    modelsParameters.driveSeat[modelsParameters.vehicle.length - 1].push(driveSeat)
+                    modelsParameters.driveDoor[modelsParameters.vehicle.length - 1].push(driveDoor)
+                    modelsParameters.isOccupied[modelsParameters.vehicle.length - 1].push(false)
+                    modelsParameters.driveAnchor[modelsParameters.vehicle.length - 1].add(driveSeat)
+                    modelsParameters.driveAnchor[modelsParameters.vehicle.length - 1].add(driveDoor)
+                }
+                modelsParameters.driveAnchor[modelsParameters.vehicle.length - 1].offset = of.ao
+                modelsParameters.carEngine.push(returnConstant('carEngine'))
+                modelsParameters.soundCarEngine.push(returnConstant('engineSoundGenerator', {
+                    listener: engineParameters.listener,
+                    parameters: {
+                        cylinders: of.cy,
+                        intakeWaveguideLength: 100,
+                        exhaustWaveguideLength: 100,
+                        extractorWaveguideLength: 100,
+                        intakeOpenReflectionFactor: .01,
+                        intakeClosedReflectionFactor: .95,
+                        exhaustOpenReflectionFactor: .01,
+                        exhaustClosedReflectionFactor: .95,
+                        ignitionTime: .016,
+                        straightPipeWaveguideLength: 128,
+                        straightPipeReflectionFactor: .01,
+                        mufflerElementsLength: [10, 15, 20, 25],
+                        action: .1,
+                        outletWaveguideLength: 5,
+                        outletReflectionFactor: .01
+                    }
+                }))
+                modelsParameters.soundCarEngine[modelsParameters.vehicle.length - 1].gain.gain.value = 0
+                chassisMesh.add(modelsParameters.soundCarEngine[modelsParameters.vehicle.length - 1])
+                engineParameters.canvasSpectogram = document.getElementById('carEngineSound')
+                engineParameters.canvasSpectogramContext = engineParameters.canvasSpectogram.getContext('2d')
+            } else {
+                modelsParameters.chassisMeshes[engineParameters.archive[index].vehicleIndex] = {
+                    uuid: chassisMesh.uuid
+                }
+                modelsParameters.vehicle[engineParameters.archive[index].vehicleIndex] = vehicle
+                modelsParameters.vehicleMotor[engineParameters.archive[index].vehicleIndex] = {
+                    gear: 1,
+                    forwardForce: 1500,
+                    reverseForce: 500,
+                    brakeForce: 50,
+                    steerForce: .01,
+                    stickLY: 0,
+                    stickRX: 0
+                }
+                chassisMesh.add(modelsParameters.soundCarEngine[engineParameters.archive[index].vehicleIndex])
+            }
+        }
+        // ==== RENDERING ====
+        // Animate
+        function animate() {
+            setTimeout(function() {
+                engineParameters.csm.update(engineParameters.camera.matrix)
+                engineParameters.csm.lightDirection = returnConstant('vector3', {
+                    x: -engineParameters.sunShadow.x,
+                    y: -engineParameters.sunShadow.y,
+                    z: -engineParameters.sunShadow.z
+                }).normalize()
+                if (engineParameters.isWaterLoaded) engineParameters.water.material.uniforms['time'].value += 1.0 / 120.0
+                if (modelsParameters.meshesData.length > 0) {
+                    updateCamPos()
+                    updatePhysics()
+                }
+                engineParameters.world.step(1.0 / 60.0)
+                render()
+                requestAnimationFrame(animate)
+            }, 20)
+        }
+        // Check if player is first person
+        function isFirstPerson(ky0) {
+            return playerParameters.index == ky0 && engineParameters.cameraIndex == 1
+        }
+    </script>
+  </body>
+</html>
