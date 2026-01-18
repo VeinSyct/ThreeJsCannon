@@ -1,0 +1,294 @@
+body{
+  color:white;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+}
+::-webkit-scrollbar{
+  width:10px;
+  height:10px;
+}
+::-webkit-scrollbar-track{
+  border-radius:3px;
+  -webkit-box-shadow:inset 0 0 1px rgba(0,0,0,0.3);
+}
+::-webkit-scrollbar-thumb{
+  border-radius:3px;
+  background-color:white;
+  outline:1px solid slategrey;
+}
+.progressBar{
+  position:absolute;
+  width:214px;
+  height:21px;
+  background:#a5dcfd;
+  border-radius:5px;
+  overflow:hidden;
+}
+.progressFill{
+  width:0%;
+  height:100%;
+  background:#355c7d;
+  transition:all 0.2s;
+}
+.progressText{
+  position:absolute;
+  top:50%;
+  right:5px;
+  transform:translateY(-50%);
+  font:bold 14px"Quicksand",sans-serif;
+  color:#ffffff;
+}
+.appWindow{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+::placeholder{
+  color:white;
+}
+.container{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:100vw;
+  height:100vh;
+  position:absolute;
+  left:0px;
+  top:0px
+}
+.dialogcontainer{
+  display:flex;
+  justify-content:center;
+  flex-direction:column;
+}
+.dialogbox{
+  margin:12px;
+  margin-top:3px;
+  margin-bottom:9px;
+  padding:5px;
+  max-width:74vw;
+  max-height:70vh;
+  white-space:nowrap;
+  border:solid;
+  border-width:thin;
+  border-color:white;
+  border-radius:5px;
+  overflow-y:scroll;
+}
+.chatMessageList{
+  display:flex;
+  margin:0px;
+  margin-top:58px;
+  padding:0px;
+  height:50vh;
+  flex-flow:column nowrap;
+  overflow-y:scroll;
+}
+.chatMessageBubble{
+  margin:6px;
+  padding-top:3.6px;
+  padding-left:8px;
+  padding-right:8px;
+  padding-bottom:5px;
+  max-width:40vw;
+  font-size:14px;
+  white-space:normal;
+  overflow-wrap:break-word;
+  border:solid;
+  border-width:thin;
+  border-color:white;
+  border-radius:5px;
+}
+.dialogMessage{
+  margin:0px;
+  padding:0px;
+  padding-left:12px;
+  padding-right:12px;
+  white-space:normal;
+  overflow-wrap:break-word;
+}
+.linkInput{
+  display:block;
+  margin:auto;
+  width:100%;
+  font-size:15px;
+  background:transparent;
+  border:none;
+  outline:none;
+  color:white;
+}
+.chatInput{
+  display:block;
+  margin:0px;
+  position:absolute;
+  left:32px;
+  width:30vw;
+  font-size:15px;
+  background:transparent;
+  border:none;
+  outline:none;
+  color:white;
+}
+.buttonContainer{
+  display:flex;
+  justify-content:center;
+  cursor:pointer;
+}
+.avatarImage{
+  margin:2px;
+  margin-bottom:0px;
+  cursor:pointer;
+}
+/* LEFT ICON */
+.topLeftIcon{
+  position:absolute;
+  left:10px;
+  top:10px;
+  z-index:1;
+}
+.topLeftSecondIcon{
+  position:absolute;
+  left:10px;
+  top:54px;
+  z-index:1;
+}
+.topLeftNextAIcon{
+  position:absolute;
+  left:54px;
+  top:10px;
+  z-index:1;
+}
+.topLeftNextSecondIcon{
+  position:absolute;
+  left:54px;
+  top:54px;
+  z-index:1;
+}
+.actionLeftIcon{
+  position:absolute;
+  left:96px;
+  bottom:169px;
+  z-index:1;
+}
+/* RIGHT ICON */
+.topRightIcon{
+  position:absolute;
+  right:10px;
+  top:10px;
+  z-index:1;
+}
+.topRightSecondIcon{
+  position:absolute;
+  right:10px;
+  top:54px;
+  z-index:1;
+}
+.topRightNextAIcon{
+  position:absolute;
+  right:54px;
+  top:10px;
+  z-index:1;
+}
+.topRightNextBIcon{
+  position:absolute;
+  right:98px;
+  top:10px;
+  z-index:1;
+}
+.topRightNextCIcon{
+  position:absolute;
+  right:142px;
+  top:10px;
+  z-index:1;
+}
+.topRightNextDIcon{
+  position:absolute;
+  right:186px;
+  top:10px;
+  z-index:1;
+}
+.topRightNextEIcon{
+  position:absolute;
+  right:230px;
+  top:10px;
+  z-index:1;
+}
+.topRightNextSecondIcon{
+  position:absolute;
+  right:54px;
+  top:54px;
+  z-index:1;
+}
+.actionRightIconB{
+  position:absolute;
+  right:40px;
+  bottom:176px;
+  z-index:1;
+}
+.actionRightIconA{
+  position:absolute;
+  right:96px;
+  bottom:169px;
+  z-index:1;
+}
+/* STICK */
+.stickBase{
+  width:128px;
+  position:absolute;
+  bottom:10px;
+}
+.stickEdge{
+  position:absolute;
+  bottom:117px;
+}
+.stickTop{
+  position:absolute;
+  bottom:134px;
+}
+.stickSide{
+  position:absolute;
+  bottom:96px;
+}
+.contactProfileImage{
+  margin:-20px;
+  width:100px;
+  height:100px;
+  border-style:solid;
+  border-width:thin;
+  border-color:white;
+  border-radius:50%;
+  transform:scale(.6,.6);
+  object-fit:cover;
+}
+.chatProfileImage{
+  margin:-16px;
+  width:80px;
+  height:80px;
+  border-style:solid;
+  border-width:thin;
+  border-color:white;
+  border-radius:50%;
+  transform:scale(.6,.6);
+  object-fit:cover;
+}
+.notifyDot{
+  position:absolute;
+  width:12px;
+  height:12px;
+  background-color:#61ffff;
+  border-radius:50%;
+}
+.profileImage{
+  width:76px;
+  height:76px;
+  object-fit:cover;
+}
+.profileFrame{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin:4px;
+  width:100%;
+}
