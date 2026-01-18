@@ -84,7 +84,7 @@ Together, they form a **living architectural system**, not just a game engine.
 
 <img width="1919" height="905" alt="Screenshot 2026-01-17 230129" src="https://github.com/user-attachments/assets/18fce858-e511-4674-abff-32178f79036c" />
 
-- **Cannon Demo**  
+- **Cannon Performance Demo**  
   https://theneoverse.web.app/#threeviewer&&burn-city
 
 ---
