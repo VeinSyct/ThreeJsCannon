@@ -80,6 +80,14 @@ Together, they form a **living architectural system**, not just a game engine.
 
 ---
 
+## Cannon ShareArrayBuffer Performance
+
+<img width="1919" height="905" alt="Screenshot 2026-01-17 230129" src="https://github.com/user-attachments/assets/18fce858-e511-4674-abff-32178f79036c" />
+
+Cannon Demo: https://theneoverse.web.app/#threeviewer&&burn-city
+
+---
+
 ## Interaction Model (Non-Violent)
 
 The engine follows **non-violent interaction rules**, ideal for academic and professional use:
